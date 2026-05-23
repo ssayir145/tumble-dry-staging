@@ -1,23 +1,24 @@
 // src/components/Layout.jsx
 
 import { NavLink, useLocation } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useStore } from '../store/index.js'
 import { logout } from '../pages/Login.jsx'
 import {
   ShoppingBag, LayoutDashboard, CreditCard, Users,
   TrendingUp, FileText, Tag, UserCheck,
-  Sun, Moon, LogOut, MoreHorizontal, Shirt,
+  Sun, Moon, LogOut, MoreHorizontal, Shirt, Inbox,
 } from 'lucide-react'
 
 const NAV_PRIMARY = [
   { path: '/',          icon: ShoppingBag,    label: 'POS'       },
   { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { path: '/pending',   icon: CreditCard,      label: 'Payments'  },
-  { path: '/customers', icon: Users,           label: 'Customers' },
+  { path: '/leads',     icon: Inbox,           label: 'Leads'     },
 ]
 
 const NAV_MORE = [
+  { path: '/customers', icon: Users,      label: 'Customers' },
   { path: '/analytics',  icon: TrendingUp, label: 'Analytics' },
   { path: '/reports',    icon: FileText,   label: 'Reports'   },
   { path: '/rates',      icon: Tag,        label: 'Rate Card' },
@@ -31,10 +32,17 @@ function NavIcon({ icon: Icon, size = 16 }) {
 }
 
 export default function Layout({ children }) {
-  const { darkMode, toggleDark, ordersLoading } = useStore()
+  const { darkMode, toggleDark, ordersLoading, newLeadsCount, fetchLeads } = useStore()
   const [moreOpen, setMoreOpen] = useState(false)
   const location = useLocation()
   const isMoreActive = NAV_MORE.some(n => location.pathname === n.path)
+
+  // Poll for new leads every 30 seconds
+  useEffect(() => {
+    fetchLeads()
+    const id = setInterval(fetchLeads, 30000)
+    return () => clearInterval(id)
+  }, [])
 
   return (
     <div className="app-layout">
@@ -58,6 +66,15 @@ export default function Layout({ children }) {
           >
             <span className="nav-item-icon"><NavIcon icon={item.icon} /></span>
             {item.label}
+            {item.path === '/leads' && newLeadsCount > 0 && (
+              <span style={{
+                marginLeft: 'auto', minWidth: 18, height: 18, borderRadius: 9,
+                background: 'var(--rose)', color: '#fff',
+                fontSize: 10, fontWeight: 700, display: 'flex',
+                alignItems: 'center', justifyContent: 'center',
+                padding: '0 5px',
+              }}>{newLeadsCount}</span>
+            )}
           </NavLink>
         ))}
 
@@ -97,7 +114,19 @@ export default function Layout({ children }) {
               end={item.path === '/'}
               className={({ isActive }) => `bottom-nav-item${isActive ? ' active' : ''}`}
             >
-              <span className="bn-icon"><NavIcon icon={item.icon} size={20} /></span>
+              <span className="bn-icon" style={{ position: 'relative' }}>
+                <NavIcon icon={item.icon} size={20} />
+                {item.path === '/leads' && newLeadsCount > 0 && (
+                  <span style={{
+                    position: 'absolute', top: -4, right: -6,
+                    minWidth: 16, height: 16, borderRadius: 8,
+                    background: 'var(--rose)', color: '#fff',
+                    fontSize: 9, fontWeight: 700,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    padding: '0 4px',
+                  }}>{newLeadsCount}</span>
+                )}
+              </span>
               <span className="bn-label">{item.label}</span>
             </NavLink>
           ))}

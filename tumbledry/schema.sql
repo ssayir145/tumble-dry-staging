@@ -66,6 +66,24 @@ ALTER TABLE orders ADD COLUMN IF NOT EXISTS rack_location  TEXT DEFAULT '';
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS cash_amount    NUMERIC(10,2) DEFAULT 0;
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS online_amount  NUMERIC(10,2) DEFAULT 0;
 
+-- Leads table (customer booking requests)
+CREATE TABLE IF NOT EXISTS leads (
+  id               TEXT PRIMARY KEY,
+  customer_name    TEXT NOT NULL,
+  customer_number  TEXT NOT NULL,
+  customer_address TEXT DEFAULT '',
+  customer_city    TEXT DEFAULT '',
+  service_type     TEXT DEFAULT 'Dry Clean',
+  garment_count    INTEGER DEFAULT 1,
+  notes            TEXT DEFAULT '',
+  status           TEXT DEFAULT 'new',
+  created_at       TIMESTAMPTZ DEFAULT NOW(),
+  converted_order_id TEXT DEFAULT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_leads_status     ON leads(status);
+CREATE INDEX IF NOT EXISTS idx_leads_created_at ON leads(created_at DESC);
+
 -- ================================================================
 -- VERIFY setup
 -- ================================================================

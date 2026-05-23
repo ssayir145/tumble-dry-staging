@@ -1,6 +1,6 @@
 // src/App.jsx
 
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { useStore } from './store/index.js'
 import Layout from './components/Layout.jsx'
@@ -13,8 +13,10 @@ import PendingPayments from './pages/PendingPayments.jsx'
 import CustomerProfiles from './pages/CustomerProfiles.jsx'
 import Reports from './pages/Reports.jsx'
 import RateCard from './pages/RateCard.jsx'
+import Leads from './pages/Leads.jsx'
+import CustomerBooking from './pages/CustomerBooking.jsx'
 
-export default function App() {
+function AuthedApp() {
   const { darkMode, fetchOrders } = useStore()
   const [authed, setAuthed] = useState(isAuthenticated())
 
@@ -27,7 +29,6 @@ export default function App() {
     if (authed) fetchOrders()
   }, [authed])
 
-  // Show login page until authenticated
   if (!authed) {
     return <Login onLogin={() => setAuthed(true)} />
   }
@@ -43,7 +44,19 @@ export default function App() {
         <Route path="/reports"    element={<Reports />}          />
         <Route path="/rates"      element={<RateCard />}         />
         <Route path="/attendance" element={<Attendance />}      />
+        <Route path="/leads"      element={<Leads />}           />
       </Routes>
     </Layout>
   )
+}
+
+export default function App() {
+  const location = useLocation()
+
+  // Public route — no auth required
+  if (location.pathname === '/book') {
+    return <CustomerBooking />
+  }
+
+  return <AuthedApp />
 }

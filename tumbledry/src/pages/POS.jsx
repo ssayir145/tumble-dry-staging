@@ -39,6 +39,7 @@ export default function POS() {
     orders, upsertOrder,
     cart, addToCart, removeFromCart, clearCart,
     orderDiscount, setOrderDiscount,
+    pendingLeadCustomer, clearPendingLeadCustomer,
   } = useStore()
 
   const [customer,      setCustomer]      = useState({ name:'', number:'', address:'', city:'', pincode:'' })
@@ -72,6 +73,14 @@ export default function POS() {
 
   useEffect(() => { setTagNumber(getNextTag(orders)) }, [orders.length])
   useEffect(() => { setDeliveryDate(calcDeliveryDate()) }, [])
+
+  // Pre-fill customer fields when converting a lead to an order
+  useEffect(() => {
+    if (pendingLeadCustomer) {
+      setCustomer(pendingLeadCustomer)
+      clearPendingLeadCustomer()
+    }
+  }, [])
   useEffect(() => {
     const h = e => { if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setShowDropdown(false) }
     document.addEventListener('mousedown', h)

@@ -30,5 +30,10 @@ export const api = {
     getAll: ()             => request('/attendance'),
     upsert: (date, attendance) =>
       request('/attendance', { method: 'POST', body: JSON.stringify({ date, attendance }) }),
-  }
+  },
+  leads: {
+    getAll:       ()                              => request('/leads'),
+    create:       (lead)                          => fetch(`${BASE}/leads`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(lead) }).then(r => r.json()),
+    updateStatus: (id, status, convertedOrderId)  => request('/leads', { method: 'POST', body: JSON.stringify({ action: 'UPDATE_STATUS', id, status, convertedOrderId: convertedOrderId || null }) }),
+  },
 }

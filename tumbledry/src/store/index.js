@@ -79,6 +79,34 @@ export const useStore = create((set, get) => ({
   clearCart: () => set({ cart: [], orderDiscount: 0 }),
   setOrderDiscount: (pct) => set({ orderDiscount: pct }),
 
+  // ── Leads ─────────────────────────────────────────────────
+  leads: [],
+  leadsLoading: false,
+  newLeadsCount: 0,
+
+  fetchLeads: async () => {
+    set({ leadsLoading: true })
+    try {
+      const { leads } = await api.leads.getAll()
+      set({ leads, leadsLoading: false, newLeadsCount: leads.filter(l => l.status === 'new').length })
+    } catch {
+      set({ leadsLoading: false })
+    }
+  },
+
+  updateLeadStatus: async (id, status, convertedOrderId = null) => {
+    await api.leads.updateStatus(id, status, convertedOrderId)
+    set(state => {
+      const updated = state.leads.map(l => l.id === id ? { ...l, status, converted_order_id: convertedOrderId } : l)
+      return { leads: updated, newLeadsCount: updated.filter(l => l.status === 'new').length }
+    })
+  },
+
+  // Pre-fill POS when converting a lead to an order
+  pendingLeadCustomer: null,
+  setPendingLeadCustomer: (c) => set({ pendingLeadCustomer: c }),
+  clearPendingLeadCustomer: () => set({ pendingLeadCustomer: null }),
+
   // ── UI ─────────────────────────────────────────────────────
   darkMode: localStorage.getItem('td-dark') === 'true',
   toggleDark: () => set(state => {
