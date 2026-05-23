@@ -1,6 +1,13 @@
 // netlify/functions/leads.js
 
 import { getDb, checkAuth, ok, err, cors } from './_db.js'
+import Pusher from 'pusher'
+
+function getPusher() {
+  const { PUSHER_APP_ID, PUSHER_KEY, PUSHER_SECRET, PUSHER_CLUSTER } = process.env
+  if (!PUSHER_APP_ID || !PUSHER_KEY || !PUSHER_SECRET || !PUSHER_CLUSTER) return null
+  return new Pusher({ appId: PUSHER_APP_ID, key: PUSHER_KEY, secret: PUSHER_SECRET, cluster: PUSHER_CLUSTER, useTLS: true })
+}
 
 export async function handler(event) {
   if (event.httpMethod === 'OPTIONS') return cors()
@@ -93,6 +100,17 @@ export async function handler(event) {
           NOW()
         )
       `
+
+      // Push real-time notification to admin (non-blocking, best-effort)
+      const pusher = getPusher()
+      if (pusher) {
+        await pusher.trigger('tumbledry-leads', 'new-lead', {
+          id,
+          customerName: customerName.trim(),
+          serviceType: serviceType || 'Dry Clean',
+        }).catch(() => {})
+      }
+
       return ok({ success: true, id })
     } catch (e) {
       return err(`DB insert error: ${e.message}`, 500)

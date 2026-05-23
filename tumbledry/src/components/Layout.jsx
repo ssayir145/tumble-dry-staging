@@ -2,6 +2,7 @@
 
 import { NavLink, useLocation } from 'react-router-dom'
 import { useState, useEffect, useRef } from 'react'
+import Pusher from 'pusher-js'
 import { useStore } from '../store/index.js'
 import { logout } from '../pages/Login.jsx'
 import {
@@ -60,11 +61,24 @@ export default function Layout({ children }) {
   const isMoreActive = NAV_MORE.some(n => location.pathname === n.path)
   const prevLeadsCount = useRef(null)
 
-  // Poll for new leads every 30 seconds
+  // Fetch leads on load
+  useEffect(() => { fetchLeads() }, [])
+
+  // Pusher: subscribe for instant new-lead push notifications
   useEffect(() => {
-    fetchLeads()
-    const id = setInterval(fetchLeads, 30000)
-    return () => clearInterval(id)
+    const key = import.meta.env.VITE_PUSHER_KEY
+    const cluster = import.meta.env.VITE_PUSHER_CLUSTER
+    if (!key || !cluster) return
+
+    const pusher = new Pusher(key, { cluster })
+    const channel = pusher.subscribe('tumbledry-leads')
+    channel.bind('new-lead', () => { fetchLeads() })
+
+    return () => {
+      channel.unbind_all()
+      pusher.unsubscribe('tumbledry-leads')
+      pusher.disconnect()
+    }
   }, [])
 
   // Sound alert when new leads arrive
