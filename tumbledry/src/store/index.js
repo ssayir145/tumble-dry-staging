@@ -82,15 +82,16 @@ export const useStore = create((set, get) => ({
   // ── Leads ─────────────────────────────────────────────────
   leads: [],
   leadsLoading: false,
+  leadsError: null,
   newLeadsCount: 0,
 
   fetchLeads: async () => {
-    set({ leadsLoading: true })
+    set({ leadsLoading: true, leadsError: null })
     try {
       const { leads } = await api.leads.getAll()
       set({ leads, leadsLoading: false, newLeadsCount: leads.filter(l => l.status === 'new').length })
-    } catch {
-      set({ leadsLoading: false })
+    } catch (e) {
+      set({ leadsLoading: false, leadsError: e.message || 'Failed to load leads' })
     }
   },
 

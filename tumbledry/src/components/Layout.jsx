@@ -1,7 +1,7 @@
 // src/components/Layout.jsx
 
 import { NavLink, useLocation } from 'react-router-dom'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useStore } from '../store/index.js'
 import { logout } from '../pages/Login.jsx'
 import {
@@ -11,7 +11,7 @@ import {
 } from 'lucide-react'
 
 const NAV_PRIMARY = [
-  { path: '/',          icon: ShoppingBag,    label: 'POS'       },
+  { path: '/pos',      icon: ShoppingBag,    label: 'POS'       },
   { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { path: '/pending',   icon: CreditCard,      label: 'Payments'  },
   { path: '/leads',     icon: Inbox,           label: 'Leads'     },
@@ -31,11 +31,34 @@ function NavIcon({ icon: Icon, size = 16 }) {
   return <Icon size={size} strokeWidth={2} style={{ flexShrink: 0 }} />
 }
 
+// Play a two-tone alert using Web Audio API
+function playLeadAlert() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)()
+    ;[880, 1100].forEach((freq, i) => {
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.frequency.value = freq
+      const t = ctx.currentTime + i * 0.22
+      gain.gain.setValueAtTime(0, t)
+      gain.gain.linearRampToValueAtTime(0.25, t + 0.04)
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.28)
+      osc.start(t)
+      osc.stop(t + 0.28)
+    })
+  } catch (_) {
+    // Browser may block audio without user gesture — silent fail is fine
+  }
+}
+
 export default function Layout({ children }) {
   const { darkMode, toggleDark, ordersLoading, newLeadsCount, fetchLeads } = useStore()
   const [moreOpen, setMoreOpen] = useState(false)
   const location = useLocation()
   const isMoreActive = NAV_MORE.some(n => location.pathname === n.path)
+  const prevLeadsCount = useRef(null)
 
   // Poll for new leads every 30 seconds
   useEffect(() => {
@@ -43,6 +66,14 @@ export default function Layout({ children }) {
     const id = setInterval(fetchLeads, 30000)
     return () => clearInterval(id)
   }, [])
+
+  // Sound alert when new leads arrive
+  useEffect(() => {
+    if (prevLeadsCount.current !== null && newLeadsCount > prevLeadsCount.current) {
+      playLeadAlert()
+    }
+    prevLeadsCount.current = newLeadsCount
+  }, [newLeadsCount])
 
   return (
     <div className="app-layout">
@@ -61,7 +92,6 @@ export default function Layout({ children }) {
           <NavLink
             key={item.path}
             to={item.path}
-            end={item.path === '/'}
             className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}
           >
             <span className="nav-item-icon"><NavIcon icon={item.icon} /></span>
@@ -73,6 +103,7 @@ export default function Layout({ children }) {
                 fontSize: 10, fontWeight: 700, display: 'flex',
                 alignItems: 'center', justifyContent: 'center',
                 padding: '0 5px',
+                animation: 'leadPulse 1.5s ease-in-out infinite',
               }}>{newLeadsCount}</span>
             )}
           </NavLink>
@@ -111,7 +142,6 @@ export default function Layout({ children }) {
             <NavLink
               key={item.path}
               to={item.path}
-              end={item.path === '/'}
               className={({ isActive }) => `bottom-nav-item${isActive ? ' active' : ''}`}
             >
               <span className="bn-icon" style={{ position: 'relative' }}>
@@ -124,6 +154,7 @@ export default function Layout({ children }) {
                     fontSize: 9, fontWeight: 700,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     padding: '0 4px',
+                    animation: 'leadPulse 1.5s ease-in-out infinite',
                   }}>{newLeadsCount}</span>
                 )}
               </span>
@@ -179,6 +210,13 @@ export default function Layout({ children }) {
           </div>
         </>
       )}
+
+      <style>{`
+        @keyframes leadPulse {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(244,63,94,0.5); }
+          50%       { box-shadow: 0 0 0 4px rgba(244,63,94,0); }
+        }
+      `}</style>
     </div>
   )
 }

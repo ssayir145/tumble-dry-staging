@@ -17,11 +17,15 @@ export async function handler(event) {
       service_type     TEXT DEFAULT 'Dry Clean',
       garment_count    INTEGER DEFAULT 1,
       notes            TEXT DEFAULT '',
+      pickup_date      TEXT DEFAULT '',
       status           TEXT DEFAULT 'new',
       created_at       TIMESTAMPTZ DEFAULT NOW(),
       converted_order_id TEXT DEFAULT NULL
     )
   `
+
+  // Add pickup_date column if upgrading an existing table
+  await sql`ALTER TABLE leads ADD COLUMN IF NOT EXISTS pickup_date TEXT DEFAULT ''`
 
   // ── GET: fetch all leads (auth required) ─────────────────────
   if (event.httpMethod === 'GET') {
@@ -47,13 +51,13 @@ export async function handler(event) {
     }
 
     // Create new lead — PUBLIC, no auth
-    const { customerName, customerNumber, customerAddress, customerCity, serviceType, garmentCount, notes } = body
+    const { customerName, customerNumber, customerAddress, customerCity, serviceType, garmentCount, notes, pickupDate } = body
     if (!customerName?.trim()) return err('Name is required')
     if (!customerNumber?.trim()) return err('Phone number is required')
 
     const id = `LEAD${Date.now()}`
     await sql`
-      INSERT INTO leads (id, customer_name, customer_number, customer_address, customer_city, service_type, garment_count, notes, status, created_at)
+      INSERT INTO leads (id, customer_name, customer_number, customer_address, customer_city, service_type, garment_count, notes, pickup_date, status, created_at)
       VALUES (
         ${id},
         ${customerName.trim()},
@@ -63,6 +67,7 @@ export async function handler(event) {
         ${serviceType || 'Dry Clean'},
         ${parseInt(garmentCount) || 1},
         ${notes?.trim() || ''},
+        ${pickupDate?.trim() || ''},
         'new',
         NOW()
       )

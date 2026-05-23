@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../store/index.js'
-import { User, Phone, MapPin, Package, Clock, CheckCircle, XCircle, RefreshCw, ArrowRight } from 'lucide-react'
+import { User, Phone, MapPin, Package, Clock, CheckCircle, XCircle, RefreshCw, ArrowRight, Calendar, AlertCircle } from 'lucide-react'
 
 const STATUS_COLORS = {
   new:       { bg: 'var(--brand-yellow-dim, #fff8e0)', color: '#92700a', border: '#f5d800' },
@@ -44,7 +44,7 @@ function timeAgo(isoStr) {
 }
 
 export default function Leads() {
-  const { leads, leadsLoading, fetchLeads, updateLeadStatus, setPendingLeadCustomer } = useStore()
+  const { leads, leadsLoading, leadsError, fetchLeads, updateLeadStatus, setPendingLeadCustomer } = useStore()
   const navigate = useNavigate()
   const [filter, setFilter] = useState('new')
   const [actioningId, setActioningId] = useState(null)
@@ -73,7 +73,7 @@ export default function Leads() {
       city:    lead.customer_city || '',
       pincode: '',
     })
-    navigate('/')
+    navigate('/pos')
   }
 
   const counts = leads.reduce((acc, l) => { acc[l.status] = (acc[l.status] || 0) + 1; return acc }, {})
@@ -139,6 +139,25 @@ export default function Leads() {
           </button>
         ))}
       </div>
+
+      {/* Error banner */}
+      {leadsError && (
+        <div style={{
+          display: 'flex', alignItems: 'flex-start', gap: 10,
+          background: '#fff5f5', border: '1px solid #fca5a5',
+          borderRadius: 12, padding: '12px 16px', marginBottom: 16,
+          fontSize: 13, color: '#dc2626',
+        }}>
+          <AlertCircle size={16} style={{ flexShrink: 0, marginTop: 1 }} />
+          <div>
+            <strong>Could not load leads:</strong> {leadsError}
+            <br />
+            <span style={{ fontSize: 12, opacity: 0.8 }}>
+              Check that <code>API_SECRET</code> and <code>DATABASE_URL</code> are set in your Netlify environment variables.
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Loading */}
       {leadsLoading && filtered.length === 0 && (
@@ -214,6 +233,12 @@ export default function Leads() {
                 <Package size={12} style={{ flexShrink: 0 }} />
                 {lead.service_type} · {lead.garment_count} garment{lead.garment_count !== 1 ? 's' : ''}
               </div>
+              {lead.pickup_date && (
+                <div style={infoItem}>
+                  <Calendar size={12} style={{ flexShrink: 0 }} />
+                  Pickup: {lead.pickup_date}
+                </div>
+              )}
             </div>
 
             {lead.notes && (

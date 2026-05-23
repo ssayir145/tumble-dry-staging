@@ -1,6 +1,6 @@
 // src/App.jsx
 
-import { Routes, Route, useLocation } from 'react-router-dom'
+import { Routes, Route, useLocation, Navigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { useStore } from './store/index.js'
 import Layout from './components/Layout.jsx'
@@ -36,7 +36,7 @@ function AuthedApp() {
   return (
     <Layout>
       <Routes>
-        <Route path="/"           element={<POS />}             />
+        <Route path="/pos"        element={<POS />}             />
         <Route path="/dashboard"  element={<Dashboard />}       />
         <Route path="/analytics"  element={<Analytics />}       />
         <Route path="/pending"    element={<PendingPayments />}  />
@@ -45,6 +45,8 @@ function AuthedApp() {
         <Route path="/rates"      element={<RateCard />}         />
         <Route path="/attendance" element={<Attendance />}      />
         <Route path="/leads"      element={<Leads />}           />
+        {/* Legacy redirect */}
+        <Route path="/book"       element={<Navigate to="/" replace />} />
       </Routes>
     </Layout>
   )
@@ -53,8 +55,8 @@ function AuthedApp() {
 export default function App() {
   const location = useLocation()
 
-  // Public route — no auth required
-  if (location.pathname === '/book') {
+  // Root is the public customer booking page
+  if (location.pathname === '/') {
     return <CustomerBooking />
   }
 
