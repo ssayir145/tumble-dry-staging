@@ -67,6 +67,7 @@ export const api = {
     setup:    (phone, tag, pin) => call('/customer', { method: 'POST', body: JSON.stringify({ action: 'SETUP', phone, tag, pin }) }),
     signIn:   (phone, pin)      => call('/customer', { method: 'POST', body: JSON.stringify({ action: 'LOGIN', phone, pin }) }),
     myOrders: (token)           => call('/customer', { token }),
+    changePin: (token, currentPin, newPin) => call('/customer', { token, method: 'POST', body: JSON.stringify({ action: 'CHANGE_PIN', currentPin, newPin }) }),
     resetPin: (phone)           => request('/customer', { method: 'POST', body: JSON.stringify({ action: 'RESET_PIN', phone }) }),
   },
 }

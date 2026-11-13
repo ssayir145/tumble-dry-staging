@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { api } from '../lib/api.js'
+import { api, getValidToken, CUSTOMER_TOKEN_KEY } from '../lib/api.js'
 import { GARMENT_RATES, SERVICE_KG_RATES } from '../lib/garments.js'
 import './customer-site.css'
 
@@ -47,6 +47,7 @@ const todayISO = () => new Date().toISOString().split('T')[0]
 
 export default function CustomerBooking() {
   const navigate = useNavigate()
+  const loggedIn = !!getValidToken(localStorage, CUSTOMER_TOKEN_KEY)
   const [form, setForm] = useState({ customerName: '', customerNumber: '', customerCity: '', pickupDate: '', serviceType: 'Dry Clean', garmentCount: 1, notes: '' })
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
@@ -108,7 +109,7 @@ export default function CustomerBooking() {
             <a href="#how">How it works</a>
           </nav>
           <div className="ps-header-actions">
-            <a className="ps-btn ps-btn-ghost" href="/account" onClick={e => { e.preventDefault(); navigate('/account') }}>My orders</a>
+            <a className="ps-btn ps-btn-ghost" href="/account" onClick={e => { e.preventDefault(); navigate('/account') }}>{loggedIn ? 'My account' : 'Log in'}</a>
             <a className="ps-btn ps-btn-primary ps-hide-sm" href="#book">Book a pickup</a>
           </div>
         </div>
@@ -130,7 +131,7 @@ export default function CustomerBooking() {
                 <a className="ps-btn ps-btn-ghost" href="#services">See prices</a>
               </div>
               <p className="ps-hero-returning">
-                Already a customer? <a className="ps-link" href="/account" onClick={e => { e.preventDefault(); navigate('/account') }}>Track your orders</a>
+                Already a customer? <a className="ps-link" href="/account" onClick={e => { e.preventDefault(); navigate('/account') }}>Log in to track your orders</a>
               </p>
               <div className="ps-hero-meta">
                 <div><strong>9,000+</strong>garments cleaned</div>

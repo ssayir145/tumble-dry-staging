@@ -104,6 +104,18 @@ export async function handler(event) {
       return ok({ success: true, hadAccount: res.length > 0 })
     }
 
+    // ── Signed-in customer: change PIN ──────────────────────────
+    if (body.action === 'CHANGE_PIN') {
+      const me = bearer(event)
+      if (!me || me.role !== 'customer') return err('Please log in again', 401)
+      if (!validPin(body.newPin)) return err('Your new PIN must be 4 to 6 digits')
+      const rows = await sql`SELECT pin_hash FROM customer_accounts WHERE phone = ${me.phone}`
+      if (!rows.length) return err('Please log in again', 401)
+      if (!pinMatches(body.currentPin, rows[0].pin_hash)) return err('Your current PIN is wrong', 403)
+      await sql`UPDATE customer_accounts SET pin_hash = ${hashPin(body.newPin)}, failed_attempts = 0, locked_until = NULL WHERE phone = ${me.phone}`
+      return ok({ success: true })
+    }
+
     if (phone.length !== 10) return err('Enter your 10-digit mobile number')
     if (!validPin(body.pin)) return err('Your PIN must be 4 to 6 digits')
 
