@@ -1,17 +1,14 @@
 // src/pages/Login.jsx
 
 import { useState } from 'react'
-
-const STORE_ID    = 'Dargah001'
-const PASSWORD    = 'tumbledry@2026'
-const SESSION_KEY = 'td-authenticated'
+import { api, getValidToken, STAFF_TOKEN_KEY } from '../lib/api.js'
 
 export function isAuthenticated() {
-  return sessionStorage.getItem(SESSION_KEY) === 'true'
+  return !!getValidToken(sessionStorage, STAFF_TOKEN_KEY)
 }
 
 export function logout() {
-  sessionStorage.removeItem(SESSION_KEY)
+  sessionStorage.removeItem(STAFF_TOKEN_KEY)
   window.location.reload()
 }
 
@@ -26,13 +23,12 @@ export default function Login({ onLogin }) {
     e.preventDefault()
     setError('')
     setLoading(true)
-    await new Promise(r => setTimeout(r, 500))
-
-    if (storeId.trim() === STORE_ID && password === PASSWORD) {
-      sessionStorage.setItem(SESSION_KEY, 'true')
+    try {
+      const { token } = await api.staff.signIn(storeId.trim(), password)
+      sessionStorage.setItem(STAFF_TOKEN_KEY, token)
       onLogin()
-    } else {
-      setError(storeId.trim() !== STORE_ID ? 'Invalid Store ID' : 'Incorrect password')
+    } catch (e2) {
+      setError(e2.status === 401 ? 'Store ID or password is incorrect' : e2.message)
     }
     setLoading(false)
   }

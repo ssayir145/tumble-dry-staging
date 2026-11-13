@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useStore } from '../store/index.js'
+import { api } from '../lib/api.js'
 import { Card, Spinner, EmptyState, Modal } from '../components/ui/index.jsx'
 import { Users, MapPin, AlertTriangle, MousePointerClick } from 'lucide-react'
 
@@ -136,7 +137,19 @@ function CustomerDetail({ selected }) {
           </div>
           <div>
             <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--tx-primary)', letterSpacing: '-0.3px' }}>{selected.name}</div>
-            <div style={{ fontSize: 13, color: 'var(--tx-secondary)' }}>{selected.phone}</div>
+            <div style={{ fontSize: 13, color: 'var(--tx-secondary)', display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+              {selected.phone}
+              <button
+                className="btn-reset-pin"
+                onClick={async () => {
+                  if (!confirm(`Reset the app PIN for ${selected.name}? They'll set a new one using a receipt tag number.`)) return
+                  try {
+                    const r = await api.customer.resetPin(selected.phone)
+                    alert(r.hadAccount ? 'PIN reset. The customer can now create a new one under “First time here?”.' : 'This customer hasn’t set up a PIN yet, so there was nothing to reset.')
+                  } catch (e) { alert('Couldn’t reset the PIN: ' + e.message) }
+                }}
+              >Reset app PIN</button>
+            </div>
             {selected.address && (
               <div style={{ fontSize: 12, color: 'var(--tx-tertiary)', marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
                 <MapPin size={11} style={{ opacity: 0.5 }} /> {[selected.address, selected.city].filter(Boolean).join(', ')}

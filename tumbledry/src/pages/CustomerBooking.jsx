@@ -106,6 +106,7 @@ export default function CustomerBooking() {
             <a href="#kashmir">Kashmiri wear</a>
             <a href="#services">Services</a>
             <a href="#how">How it works</a>
+            <a href="/account" onClick={e => { e.preventDefault(); navigate('/account') }}>My orders</a>
           </nav>
           <a className="ps-btn ps-btn-primary" href="#book">Book a pickup</a>
         </div>

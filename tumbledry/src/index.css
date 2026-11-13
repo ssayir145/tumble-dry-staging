@@ -663,3 +663,13 @@ html.dark .nav-logo-word { color: #F0B9C2; }
 }
 
 @media (max-width: 768px) { .discount-grid { grid-template-columns: repeat(2, 1fr); } }
+
+/* Small secondary action used on customer profiles */
+.btn-reset-pin {
+  padding: 3px 10px; border-radius: 999px; border: 1px solid var(--bd-default);
+  background: var(--bg-card); color: var(--indigo); font: 500 11.5px var(--font-ui); cursor: pointer;
+  transition: transform 0.18s var(--ease-spring);
+}
+.btn-reset-pin:hover { transform: translateY(-1px); background: var(--indigo-dim); }
+.btn-reset-pin:active { transform: scale(0.96); }
+.btn-reset-pin:focus-visible { outline: 2px solid var(--indigo); outline-offset: 2px; }
