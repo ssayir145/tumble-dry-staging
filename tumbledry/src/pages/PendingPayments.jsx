@@ -39,9 +39,9 @@ export default function PendingPayments() {
 
   const now   = Date.now()
   const aging = [
-    { label: '0–7 Days',  color: 'var(--emerald)', bg: 'rgba(16,185,129,0.08)',  border: 'rgba(16,185,129,0.2)',  orders: pending.filter(o => (now - new Date(o.orderDate)) / 86400000 <= 7) },
-    { label: '8–30 Days', color: 'var(--amber)',   bg: 'rgba(245,158,11,0.08)',  border: 'rgba(245,158,11,0.2)',  orders: pending.filter(o => { const d = (now - new Date(o.orderDate)) / 86400000; return d > 7 && d <= 30 }) },
-    { label: '30+ Days',  color: 'var(--rose)',    bg: 'rgba(244,63,94,0.08)',   border: 'rgba(244,63,94,0.2)',   orders: pending.filter(o => (now - new Date(o.orderDate)) / 86400000 > 30) },
+    { label: '0–7 Days',  color: 'var(--emerald)', bg: 'rgba(61,128,96,0.08)',  border: 'rgba(61,128,96,0.2)',  orders: pending.filter(o => (now - new Date(o.orderDate)) / 86400000 <= 7) },
+    { label: '8–30 Days', color: 'var(--amber)',   bg: 'rgba(183,121,31,0.08)',  border: 'rgba(183,121,31,0.2)',  orders: pending.filter(o => { const d = (now - new Date(o.orderDate)) / 86400000; return d > 7 && d <= 30 }) },
+    { label: '30+ Days',  color: 'var(--rose)',    bg: 'rgba(194,80,30,0.08)',   border: 'rgba(194,80,30,0.2)',   orders: pending.filter(o => (now - new Date(o.orderDate)) / 86400000 > 30) },
   ]
 
   async function collectPayment(order) {
@@ -65,16 +65,16 @@ export default function PendingPayments() {
 
   return (
     <div className="page">
-      <h1 style={{ fontSize: 20, fontWeight: 800, marginBottom: 20, color: 'var(--tx-primary)', letterSpacing: '-0.4px', display: 'flex', alignItems: 'center', gap: 10 }}>
+      <h1 style={{ fontSize: 26, fontWeight: 500, marginBottom: 20, color: 'var(--tx-primary)', letterSpacing: '-0.03em', display: 'flex', alignItems: 'center', gap: 10 }}>
         <CreditCard size={20} strokeWidth={2} /> Pending Payments
       </h1>
 
       {/* Summary stats */}
       <div className="three-col" style={{ marginBottom: 20 }}>
         {[
-          { label: 'Unpaid Orders',     value: unpaid.length,              color: 'var(--rose)',    bg: 'rgba(244,63,94,0.06)',  border: 'rgba(244,63,94,0.15)'  },
-          { label: 'Partial Orders',    value: partial.length,             color: 'var(--amber)',   bg: 'rgba(245,158,11,0.06)', border: 'rgba(245,158,11,0.15)' },
-          { label: 'Total Outstanding', value: `₹${totalOut.toLocaleString()}`, color: 'var(--indigo)', bg: 'rgba(13,148,136,0.06)', border: 'rgba(13,148,136,0.15)' },
+          { label: 'Unpaid Orders',     value: unpaid.length,              color: 'var(--rose)',    bg: 'rgba(194,80,30,0.06)',  border: 'rgba(194,80,30,0.15)'  },
+          { label: 'Partial Orders',    value: partial.length,             color: 'var(--amber)',   bg: 'rgba(183,121,31,0.06)', border: 'rgba(183,121,31,0.15)' },
+          { label: 'Total Outstanding', value: `₹${totalOut.toLocaleString()}`, color: 'var(--indigo)', bg: 'rgba(183,38,56,0.06)', border: 'rgba(183,38,56,0.15)' },
         ].map(s => (
           <div key={s.label} style={{ background: s.bg, border: `1px solid ${s.border}`, borderRadius: 12, padding: '14px 18px', textAlign: 'center' }}>
             <div className="mono" style={{ fontSize: 24, fontWeight: 800, color: s.color }}>{s.value}</div>
@@ -158,10 +158,10 @@ export default function PendingPayments() {
                 </div>
 
                 <button onClick={() => setConfirmOrder(order)} style={{
-                  padding: '8px 14px', background: 'linear-gradient(135deg,#059669,#10B981)',
+                  padding: '8px 14px', background: 'linear-gradient(135deg,#265A42,#3D8060)',
                   color: 'white', border: 'none', borderRadius: 8, fontWeight: 700,
                   fontSize: 12, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap',
-                  boxShadow: '0 2px 8px rgba(16,185,129,0.2)', flexShrink: 0,
+                  boxShadow: '0 2px 8px rgba(61,128,96,0.2)', flexShrink: 0,
                   display: 'flex', alignItems: 'center', gap: 5,
                 }}>
                   <CheckCircle2 size={13} strokeWidth={2.5} /> Collect
@@ -186,7 +186,7 @@ export default function PendingPayments() {
               <button onClick={() => setConfirmOrder(null)} style={{ flex: 1, padding: 12, background: 'var(--bg-raised)', border: '1px solid var(--bd-subtle)', borderRadius: 9, fontFamily: 'inherit', fontWeight: 600, cursor: 'pointer', color: 'var(--tx-secondary)', fontSize: 13 }}>
                 Cancel
               </button>
-              <button onClick={() => collectPayment(confirmOrder)} style={{ flex: 2, padding: 12, background: 'linear-gradient(135deg,#059669,#10B981)', color: 'white', border: 'none', borderRadius: 9, fontFamily: 'inherit', fontWeight: 700, cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+              <button onClick={() => collectPayment(confirmOrder)} style={{ flex: 2, padding: 12, background: 'linear-gradient(135deg,#265A42,#3D8060)', color: 'white', border: 'none', borderRadius: 9, fontFamily: 'inherit', fontWeight: 700, cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                 <CheckCircle2 size={15} strokeWidth={2.5} /> Yes, Collect
               </button>
             </div>

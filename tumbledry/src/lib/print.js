@@ -50,7 +50,8 @@ function buildReceiptHTML(order) {
       @media print { @page { size:75mm auto; margin:0; } body { padding:4mm; } }
     </style></head><body>
 
-    <div class="center" style="font-size:20px;font-weight:900;letter-spacing:1px;margin-bottom:2px;">TUMBLEDRY</div>
+    <div class="center" style="font-size:20px;font-weight:900;letter-spacing:6px;margin-bottom:2px;">POSH</div>
+    <div class="center" style="font-size:10px;font-weight:700;letter-spacing:1px;margin-bottom:2px;">FABRIC CARE &amp; DRY CLEANERS</div>
     <div class="center" style="font-size:12px;font-weight:700;margin-bottom:2px;">Premium Laundry Services</div>
     <div class="center" style="font-size:11px;font-weight:700;margin-bottom:1px;">Banday Lane, Dargah Hazratbal, 190006</div>
     <div class="center" style="font-size:11px;font-weight:700;margin-bottom:8px;">Ph: 8899912859</div>
@@ -95,7 +96,7 @@ function buildReceiptHTML(order) {
       <span style="font-weight:900;">${order.paymentStatus}</span>
     </div>
     <div class="divider"></div>
-    <div class="center" style="font-size:12px;font-weight:700;margin-top:5px;">Thank you for choosing Tumbledry!</div>
+    <div class="center" style="font-size:12px;font-weight:700;margin-top:5px;">Thank you for choosing Posh!</div>
     <div class="center" style="font-size:11px;font-weight:700;margin-top:3px;">Keep this receipt for your records</div>
     </body></html>`
 }

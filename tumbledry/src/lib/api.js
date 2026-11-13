@@ -1,25 +1,52 @@
 // src/lib/api.js — All Netlify Function calls
+// No secrets live in the browser. Staff and customers each get a signed session token from the server.
 
 const BASE = '/.netlify/functions'
-const SECRET = import.meta.env.VITE_API_SECRET
+export const STAFF_TOKEN_KEY = 'posh-staff-token'
+export const CUSTOMER_TOKEN_KEY = 'posh-customer-token'
 
-const headers = {
-  'Content-Type': 'application/json',
-  'x-api-secret': SECRET
+function tokenExpired(token) {
+  try {
+    const p = JSON.parse(atob(token.split('.')[0].replace(/-/g, '+').replace(/_/g, '/')))
+    return !p.exp || p.exp * 1000 < Date.now()
+  } catch { return true }
+}
+export function getValidToken(storage, key) {
+  const t = storage.getItem(key)
+  if (t && !tokenExpired(t)) return t
+  if (t) storage.removeItem(key)
+  return null
 }
 
-async function request(path, options = {}) {
+async function call(path, { token, ...options } = {}) {
   const res = await fetch(`${BASE}${path}`, {
     ...options,
-    headers: { ...headers, ...options.headers }
+    headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}), ...options.headers },
   })
-  const data = await res.json()
-  if (!res.ok) throw new Error(data.error || 'Request failed')
+  let data = {}
+  try { data = await res.json() } catch { /* empty body */ }
+  if (!res.ok) {
+    const e = new Error(data.error || 'Request failed')
+    e.status = res.status
+    throw e
+  }
   return data
 }
 
-// ── Orders ────────────────────────────────────────────────────
+// Staff calls: on an expired/invalid session, drop the token and go back to sign-in
+async function request(path, options = {}) {
+  try {
+    return await call(path, { ...options, token: getValidToken(sessionStorage, STAFF_TOKEN_KEY) })
+  } catch (e) {
+    if (e.status === 401) { sessionStorage.removeItem(STAFF_TOKEN_KEY); window.location.reload() }
+    throw e
+  }
+}
+
 export const api = {
+  staff: {
+    signIn: (storeId, password) => call('/staff-auth', { method: 'POST', body: JSON.stringify({ storeId, password }) }),
+  },
   orders: {
     getAll:      ()        => request('/orders'),
     upsert:      (order)   => request('/orders', { method: 'POST', body: JSON.stringify({ order }) }),
@@ -35,5 +62,11 @@ export const api = {
     getAll:       ()                              => request('/leads'),
     create:       (lead)                          => fetch(`${BASE}/leads`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(lead) }).then(r => r.json()),
     updateStatus: (id, status, convertedOrderId)  => request('/leads', { method: 'POST', body: JSON.stringify({ action: 'UPDATE_STATUS', id, status, convertedOrderId: convertedOrderId || null }) }),
+  },
+  customer: {
+    setup:    (phone, tag, pin) => call('/customer', { method: 'POST', body: JSON.stringify({ action: 'SETUP', phone, tag, pin }) }),
+    signIn:   (phone, pin)      => call('/customer', { method: 'POST', body: JSON.stringify({ action: 'LOGIN', phone, pin }) }),
+    myOrders: (token)           => call('/customer', { token }),
+    resetPin: (phone)           => request('/customer', { method: 'POST', body: JSON.stringify({ action: 'RESET_PIN', phone }) }),
   },
 }

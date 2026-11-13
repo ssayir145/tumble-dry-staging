@@ -22,10 +22,10 @@ const TIMELINE = [
 ]
 
 const STATUS_COLORS = {
-  pending:   { bg: 'rgba(245,158,11,0.12)',  color: '#D97706' },
-  inprocess: { bg: 'rgba(14,165,233,0.12)',  color: '#0369A1' },
-  completed: { bg: 'rgba(16,185,129,0.12)',  color: '#059669' },
-  delivered: { bg: 'rgba(114,191,44,0.12)',  color: '#5FAD1A' },
+  pending:   { bg: 'rgba(183,121,31,0.12)',  color: '#9A6418' },
+  inprocess: { bg: 'rgba(78,110,142,0.12)',  color: '#3E5A76' },
+  completed: { bg: 'rgba(61,128,96,0.12)',  color: '#265A42' },
+  delivered: { bg: 'rgba(183,38,56,0.12)',  color: '#B72638' },
 }
 
 const MONTH_IDX = { Jan:0, Feb:1, Mar:2, Apr:3, May:4, Jun:5, Jul:6, Aug:7, Sep:8, Oct:9, Nov:10, Dec:11 }
@@ -96,7 +96,7 @@ export default function Dashboard() {
   }
 
   function sendReadyWhatsApp(order) {
-    const msg = `Hello ${order.customerName}! 👋\n\nYour laundry is *ready for pickup* ✅\n\n🏷️ *Tag #:* ${order.tagNumber}\n👕 *Garments:* ${order.totalGarments}\n💰 *Amount:* ₹${order.grandTotal}\n\nPlease visit us to collect your order.\n\n━━━━━━━━━━━━━━━━━━\n📍 *Banday Lane, Dargah Hazratbal, 190006*\n📞 *8899912859*\n📸 *Instagram:* https://www.instagram.com/tumbledryhazratbal?igsh=OGw2NTFyZmI4dmpi\n━━━━━━━━━━━━━━━━━━\n\n⭐ *Loved our service? Leave us a review:*\nhttps://share.google/Ks8Li9bHkiT3Aiixz\n\nThank you for choosing Tumbledry! 🙏`
+    const msg = `Hello ${order.customerName}! 👋\n\nYour laundry is *ready for pickup* ✅\n\n🏷️ *Tag #:* ${order.tagNumber}\n👕 *Garments:* ${order.totalGarments}\n💰 *Amount:* ₹${order.grandTotal}\n\nPlease visit us to collect your order.\n\n━━━━━━━━━━━━━━━━━━\n📍 *Banday Lane, Dargah Hazratbal, 190006*\n📞 *8899912859*\n📸 *Instagram:* https://www.instagram.com/tumbledryhazratbal?igsh=OGw2NTFyZmI4dmpi\n━━━━━━━━━━━━━━━━━━\n\n⭐ *Loved our service? Leave us a review:*\nhttps://share.google/Ks8Li9bHkiT3Aiixz\n\nThank you for choosing Posh Fabric Care & Dry Cleaners! 🙏`
     window.open(`https://web.whatsapp.com/send?phone=91${order.customerNumber}&text=${encodeURIComponent(msg)}`, '_blank')
   }
 
@@ -118,8 +118,8 @@ export default function Dashboard() {
   const STAT_CARDS = [
     {
       label: 'Revenue', value: `₹${revenueValue.toLocaleString()}`, sub: revenueLabel,
-      gradient: 'linear-gradient(135deg, #D97706, #F59E0B)',
-      shadow: 'var(--shadow-amber)',
+      gradient: 'radial-gradient(120% 90% at 100% 0%, rgba(225,132,144,0.32), transparent 55%), linear-gradient(135deg, #4A1226, #822242)',
+      shadow: '0 2px 6px rgba(74,18,38,0.18), 0 12px 32px rgba(112,28,56,0.26)',
       extra: (
         <div style={{ display: 'flex', gap: 3, marginBottom: 10 }}>
           {[['today', 'Today'], ['mtd', 'MTD'], ['total', 'All']].map(([v, l]) => (
@@ -133,16 +133,16 @@ export default function Dashboard() {
         </div>
       ),
     },
-    { label: 'Orders',    value: totalOrders.toLocaleString(),     sub: 'Total orders',     gradient: 'linear-gradient(135deg, #0284C7, #0EA5E9)', shadow: '0 4px 20px rgba(14,165,233,0.25)' },
-    { label: 'Garments',  value: totalGarments.toLocaleString(),   sub: 'Total garments',   gradient: 'linear-gradient(135deg, #059669, #10B981)', shadow: '0 4px 20px rgba(16,185,129,0.25)' },
-    { label: 'Customers', value: uniqueCustomers.toLocaleString(), sub: 'Unique customers', gradient: 'linear-gradient(135deg, #72BF2C, #8DD446)', shadow: 'var(--shadow-teal)' },
+    { label: 'Orders',    value: totalOrders.toLocaleString(),     sub: 'Orders, all time',  light: true, accent: 'var(--sky)'     },
+    { label: 'Garments',  value: totalGarments.toLocaleString(),   sub: 'Garments cleaned',  light: true, accent: 'var(--emerald)' },
+    { label: 'Customers', value: uniqueCustomers.toLocaleString(), sub: 'Unique customers',  light: true, accent: 'var(--indigo)'  },
   ]
 
   if (ordersLoading) return <div style={{ display: 'flex', justifyContent: 'center', padding: 80 }}><Spinner size={40} /></div>
 
   return (
     <div className="page">
-      <h1 style={{ fontSize: 20, fontWeight: 800, marginBottom: 14, color: 'var(--tx-primary)', letterSpacing: '-0.4px' }}>Dashboard</h1>
+      <h1 style={{ fontSize: 26, fontWeight: 500, marginBottom: 14, color: 'var(--tx-primary)', letterSpacing: '-0.03em' }}>Dashboard</h1>
 
       {/* ── Sticky Today Summary ── */}
       <div style={{
@@ -172,14 +172,16 @@ export default function Dashboard() {
       <div className="stat-grid">
         {STAT_CARDS.map(c => (
           <div key={c.label} className="lift-hover" style={{
-            background: c.gradient, borderRadius: 14, padding: '16px 18px',
-            boxShadow: c.shadow, color: 'white', position: 'relative', overflow: 'hidden',
+            background: c.light ? 'var(--bg-card)' : c.gradient, borderRadius: 14, padding: '16px 18px',
+            border: c.light ? '1px solid var(--bd-subtle)' : 'none',
+            boxShadow: c.light ? 'var(--shadow-sm)' : c.shadow,
+            color: c.light ? 'var(--tx-primary)' : 'white', position: 'relative', overflow: 'hidden',
           }}>
-            <div style={{ position: 'absolute', top: '-20%', right: '-8%', width: 70, height: 70, background: 'rgba(255,255,255,0.08)', borderRadius: '50%' }} />
+            {c.light && <div style={{ position: 'absolute', left: 0, top: 16, bottom: 16, width: 3, borderRadius: '0 3px 3px 0', background: c.accent }} />}
             {c.extra}
-            <div className="mono" style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-1px', lineHeight: 1.1 }}>{c.value}</div>
-            <div style={{ fontSize: 10, opacity: 0.85, marginTop: 5, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              {c.label} · {c.sub}
+            <div className="mono" style={{ fontSize: 28, fontWeight: 600, letterSpacing: '-0.03em', lineHeight: 1.1 }}>{c.value}</div>
+            <div style={{ fontSize: 12.5, marginTop: 6, fontWeight: 500, color: c.light ? 'var(--tx-secondary)' : 'rgba(255,255,255,0.8)' }}>
+              {c.light ? c.sub : `Revenue, ${c.sub.toLowerCase()}`}
             </div>
           </div>
         ))}
@@ -216,7 +218,7 @@ export default function Dashboard() {
                 background: viewMode === mode ? 'var(--bg-card)' : 'transparent',
                 color: viewMode === mode ? 'var(--indigo)' : 'var(--tx-tertiary)',
                 boxShadow: viewMode === mode ? 'var(--shadow-sm)' : 'none',
-                transition: 'all 0.15s', display: 'flex', alignItems: 'center', gap: 4,
+                transition: 'transform 0.15s var(--ease-out), opacity 0.15s', display: 'flex', alignItems: 'center', gap: 4,
               }}>
                 <Icon size={13} strokeWidth={2} />{label}
               </button>
@@ -276,7 +278,7 @@ export default function Dashboard() {
                               )}
                             </div>
                             {order.paymentStatus !== 'Paid' && (
-                              <div style={{ fontSize: 9, padding: '2px 7px', borderRadius: 99, background: 'rgba(244,63,94,0.1)', color: 'var(--rose)', fontWeight: 700, marginTop: 6, display: 'inline-block', textTransform: 'uppercase', letterSpacing: '0.3px' }}>{order.paymentStatus}</div>
+                              <div style={{ fontSize: 9, padding: '2px 7px', borderRadius: 99, background: 'rgba(194,80,30,0.1)', color: 'var(--rose)', fontWeight: 700, marginTop: 6, display: 'inline-block', textTransform: 'uppercase', letterSpacing: '0.3px' }}>{order.paymentStatus}</div>
                             )}
                           </div>
                         )
@@ -308,15 +310,15 @@ export default function Dashboard() {
                         {order.customerName}
                         <span className="mono" style={{ fontSize: 11, color: 'var(--indigo)', fontWeight: 600 }}>{order.tagNumber}</span>
                         {order.paymentStatus !== 'Paid' && (
-                          <span style={{ fontSize: 9, padding: '2px 7px', borderRadius: 99, background: 'rgba(244,63,94,0.1)', color: 'var(--rose)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.3px' }}>
+                          <span style={{ fontSize: 9, padding: '2px 7px', borderRadius: 99, background: 'rgba(194,80,30,0.1)', color: 'var(--rose)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.3px' }}>
                             {order.paymentStatus}
                           </span>
                         )}
                         {isOverdue && (
-                          <span style={{ fontSize: 9, padding: '2px 7px', borderRadius: 99, background: 'rgba(244,63,94,0.1)', color: 'var(--rose)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.3px' }}>Overdue</span>
+                          <span style={{ fontSize: 9, padding: '2px 7px', borderRadius: 99, background: 'rgba(194,80,30,0.1)', color: 'var(--rose)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.3px' }}>Overdue</span>
                         )}
                         {isDueToday && (
-                          <span style={{ fontSize: 9, padding: '2px 7px', borderRadius: 99, background: 'rgba(245,158,11,0.12)', color: 'var(--amber)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.3px' }}>Due Today</span>
+                          <span style={{ fontSize: 9, padding: '2px 7px', borderRadius: 99, background: 'rgba(183,121,31,0.12)', color: 'var(--amber)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.3px' }}>Due Today</span>
                         )}
                       </div>
                       <div style={{ fontSize: 11, color: 'var(--tx-secondary)', marginTop: 2 }}>
@@ -351,8 +353,8 @@ export default function Dashboard() {
                                 background: isDone ? 'var(--emerald)' : isActive ? 'var(--indigo)' : 'var(--bg-raised)',
                                 border: `2px solid ${isDone ? 'var(--emerald)' : isActive ? 'var(--indigo)' : 'var(--bd-default)'}`,
                                 color: (isDone || isActive) ? 'white' : 'var(--tx-tertiary)',
-                                boxShadow: isActive ? '0 0 0 4px rgba(13,148,136,0.15)' : 'none',
-                                transition: 'all 0.25s',
+                                boxShadow: isActive ? '0 0 0 4px rgba(183,38,56,0.15)' : 'none',
+                                transition: 'transform 0.25s var(--ease-out), opacity 0.25s',
                               }}>
                                 <Icon size={12} strokeWidth={2.5} />
                               </div>
@@ -406,7 +408,7 @@ export default function Dashboard() {
                         </div>
                       )}
                       {order.rackLocation && (
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, marginTop: 2, padding: '2px 10px', background: 'rgba(13,148,136,0.08)', border: '1px solid rgba(13,148,136,0.2)', borderRadius: 99, fontSize: 11, fontWeight: 700, color: 'var(--indigo)' }}>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, marginTop: 2, padding: '2px 10px', background: 'rgba(183,38,56,0.08)', border: '1px solid rgba(183,38,56,0.2)', borderRadius: 99, fontSize: 11, fontWeight: 700, color: 'var(--indigo)' }}>
                           <Package size={11} /> Rack: {order.rackLocation}
                         </div>
                       )}
@@ -424,10 +426,10 @@ export default function Dashboard() {
 
                       <div className="action-row" style={{ marginTop: 10 }}>
                         {[
-                          { label: 'Edit',    icon: Pencil,    color: 'var(--indigo)',  bg: 'var(--indigo-dim)',    border: 'rgba(13,148,136,0.2)',  action: e => { e.stopPropagation(); setEditOrder(order) } },
-                          { label: 'Receipt', icon: Printer,   color: 'var(--emerald)', bg: 'var(--emerald-dim)',   border: 'rgba(16,185,129,0.2)',  action: e => { e.stopPropagation(); printReceipt(order) } },
-                          { label: 'Tags',    icon: Tag,       color: 'var(--sky)',     bg: 'rgba(14,165,233,0.1)', border: 'rgba(14,165,233,0.2)',  action: e => { e.stopPropagation(); printTags(order) } },
-                          { label: 'Payment', icon: CreditCard,color: 'var(--amber)',   bg: 'var(--amber-dim)',     border: 'rgba(245,158,11,0.2)',  action: e => { e.stopPropagation(); setPaymentModal(order) } },
+                          { label: 'Edit',    icon: Pencil,    color: 'var(--indigo)',  bg: 'var(--indigo-dim)',    border: 'rgba(183,38,56,0.2)',  action: e => { e.stopPropagation(); setEditOrder(order) } },
+                          { label: 'Receipt', icon: Printer,   color: 'var(--emerald)', bg: 'var(--emerald-dim)',   border: 'rgba(61,128,96,0.2)',  action: e => { e.stopPropagation(); printReceipt(order) } },
+                          { label: 'Tags',    icon: Tag,       color: 'var(--sky)',     bg: 'rgba(78,110,142,0.1)', border: 'rgba(78,110,142,0.2)',  action: e => { e.stopPropagation(); printTags(order) } },
+                          { label: 'Payment', icon: CreditCard,color: 'var(--amber)',   bg: 'var(--amber-dim)',     border: 'rgba(183,121,31,0.2)',  action: e => { e.stopPropagation(); setPaymentModal(order) } },
                         ].map(btn => (
                           <button key={btn.label} onClick={btn.action} style={{ padding: '6px 12px', borderRadius: 7, border: `1px solid ${btn.border}`, background: btn.bg, color: btn.color, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', display: 'inline-flex', alignItems: 'center', gap: 5 }}>
                             <btn.icon size={12} strokeWidth={2} />
@@ -435,7 +437,7 @@ export default function Dashboard() {
                           </button>
                         ))}
                         {!order.deleted && (
-                          <button onClick={e => { e.stopPropagation(); deleteOrder(order) }} style={{ padding: '6px 12px', borderRadius: 7, border: '1px solid rgba(244,63,94,0.2)', background: 'rgba(244,63,94,0.08)', color: 'var(--rose)', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                          <button onClick={e => { e.stopPropagation(); deleteOrder(order) }} style={{ padding: '6px 12px', borderRadius: 7, border: '1px solid rgba(194,80,30,0.2)', background: 'rgba(194,80,30,0.08)', color: 'var(--rose)', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
                             Delete
                           </button>
                         )}
@@ -470,7 +472,7 @@ export default function Dashboard() {
                   background: paymentModal.paymentStatus === s ? 'var(--indigo-dim)' : 'transparent',
                   color: paymentModal.paymentStatus === s ? 'var(--indigo)' : 'var(--tx-primary)',
                   fontWeight: 600, fontSize: 14, cursor: 'pointer', fontFamily: 'inherit',
-                  textAlign: 'left', transition: 'all 0.15s',
+                  textAlign: 'left', transition: 'transform 0.15s var(--ease-out), opacity 0.15s',
                   display: 'flex', alignItems: 'center', gap: 8,
                 }}>
                   <Icon size={15} color={color} strokeWidth={2} />

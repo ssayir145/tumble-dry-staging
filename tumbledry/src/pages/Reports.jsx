@@ -107,7 +107,7 @@ export default function Reports() {
     const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' })
     const url  = URL.createObjectURL(blob)
     const a    = document.createElement('a')
-    a.href = url; a.download = `tumbledry-orders-${fromDate}-to-${toDate}.csv`; a.click()
+    a.href = url; a.download = `posh-orders-${fromDate}-to-${toDate}.csv`; a.click()
     URL.revokeObjectURL(url)
     showToast(`✅ Exported ${rangeOrders.length} orders`)
   }
@@ -144,7 +144,7 @@ export default function Reports() {
       .total{font-size:20px;font-weight:bold;text-align:right;margin-top:8px}
       @media print{@page{margin:10mm}}
     </style></head><body>
-    <h1>TUMBLEDRY — Daily Closing Report</h1>
+    <h1>POSH — Daily Closing Report</h1>
     <div class="sub">${dateLabel}</div>
     <div class="section"><h2>📊 Summary</h2>
       <div class="row"><span>Total Orders</span><strong>${d.dayOrders.length}</strong></div>
@@ -188,7 +188,7 @@ export default function Reports() {
 
   return (
     <div className="page">
-      <h1 style={{ fontSize:20, fontWeight:800, marginBottom:20, color:'var(--tx-primary)', letterSpacing:'-0.4px', display:'flex', alignItems:'center', gap:10 }}>
+      <h1 style={{ fontSize: 26, fontWeight: 500, marginBottom:20, color:'var(--tx-primary)', letterSpacing: '-0.03em', display:'flex', alignItems:'center', gap:10 }}>
         <FileText size={20} strokeWidth={2} /> Reports
       </h1>
 
@@ -208,7 +208,7 @@ export default function Reports() {
           <div style={{ padding:'10px 14px', background:'var(--bg-raised)', borderRadius:8, marginBottom:16, fontSize:13, color:'var(--tx-secondary)', border:'1px solid var(--bd-subtle)' }}>
             <strong style={{color:'var(--tx-primary)'}}>{rangeOrds.length} orders</strong> · ₹{rangeRev.toLocaleString()} revenue in range
           </div>
-          <button onClick={exportCSV} style={{ width:'100%', padding:12, background:'linear-gradient(135deg,#0284c7,#38bdf8)', color:'white', border:'none', borderRadius:10, fontFamily:'inherit', fontWeight:700, fontSize:14, cursor:'pointer', boxShadow:'0 4px 14px rgba(56,189,248,0.25)', display:'flex', alignItems:'center', justifyContent:'center', gap:7 }}>
+          <button onClick={exportCSV} style={{ width:'100%', padding:12, background:'linear-gradient(135deg,#3E5A76,#38bdf8)', color:'white', border:'none', borderRadius:10, fontFamily:'inherit', fontWeight:700, fontSize:14, cursor:'pointer', boxShadow:'0 4px 14px rgba(56,189,248,0.25)', display:'flex', alignItems:'center', justifyContent:'center', gap:7 }}>
             <Download size={15} strokeWidth={2.5} /> Download CSV
           </button>
           <div style={{ marginTop:12, fontSize:12, color:'var(--tx-tertiary)', lineHeight:1.6 }}>
@@ -224,7 +224,7 @@ export default function Reports() {
           </div>
           <label style={{ display:'block', cursor:'pointer' }}>
             <input type="file" accept=".csv" onChange={handleImportCSV} style={{display:'none'}} disabled={importing} />
-            <div style={{ width:'100%', padding:12, background: importing ? 'var(--bg-raised)' : 'linear-gradient(135deg,#72BF2C,#8DD446)', color: importing ? 'var(--tx-secondary)' : 'white', border: importing ? '1px solid var(--bd-subtle)' : 'none', borderRadius:10, fontFamily:'inherit', fontWeight:700, fontSize:14, cursor: importing ? 'not-allowed' : 'pointer', boxShadow: importing ? 'none' : '0 4px 14px rgba(114,191,44,0.28)', textAlign:'center', boxSizing:'border-box' }}>
+            <div style={{ width:'100%', padding:12, background: importing ? 'var(--bg-raised)' : 'linear-gradient(135deg,#8F1C2E,#B72638)', color: importing ? 'var(--tx-secondary)' : 'white', border: importing ? '1px solid var(--bd-subtle)' : 'none', borderRadius:10, fontFamily:'inherit', fontWeight:700, fontSize:14, cursor: importing ? 'not-allowed' : 'pointer', boxShadow: importing ? 'none' : '0 4px 14px rgba(183,38,56,0.28)', textAlign:'center', boxSizing:'border-box' }}>
               <span style={{display:'flex', alignItems:'center', justifyContent:'center', gap:7}}>
                 <Upload size={15} strokeWidth={2.5} />
                 {importing ? 'Importing...' : 'Choose CSV File to Import'}
@@ -233,8 +233,8 @@ export default function Reports() {
           </label>
           {importResult && (
             <div style={{ marginTop:12, padding:'12px 14px', borderRadius:8,
-              background: importResult.success === true ? 'rgba(16,185,129,0.08)' : importResult.success === false ? 'rgba(244,63,94,0.08)' : 'rgba(13,148,136,0.08)',
-              border: `1px solid ${importResult.success === true ? 'rgba(16,185,129,0.2)' : importResult.success === false ? 'rgba(244,63,94,0.2)' : 'rgba(13,148,136,0.2)'}`,
+              background: importResult.success === true ? 'rgba(61,128,96,0.08)' : importResult.success === false ? 'rgba(194,80,30,0.08)' : 'rgba(183,38,56,0.08)',
+              border: `1px solid ${importResult.success === true ? 'rgba(61,128,96,0.2)' : importResult.success === false ? 'rgba(194,80,30,0.2)' : 'rgba(183,38,56,0.2)'}`,
               fontSize:13, color: importResult.success === true ? 'var(--emerald)' : importResult.success === false ? 'var(--rose)' : 'var(--indigo)' }}>
               {importResult.success === true
                 ? `✅ ${importResult.count} orders imported successfully`
@@ -244,7 +244,7 @@ export default function Reports() {
             </div>
           )}
           <div style={{ marginTop:12, fontSize:12, color:'var(--tx-tertiary)', lineHeight:1.6 }}>
-            Upload <strong>tumbledry_orders_import.csv</strong> — must match the export column headers.
+            Upload <strong>posh_orders_import.csv</strong> — must match the export column headers.
           </div>
         </Card>
 
@@ -285,7 +285,7 @@ export default function Reports() {
             )}
           </div>
 
-          <button onClick={printReport} style={{ width:'100%', padding:12, background:'linear-gradient(135deg,#d97706,#f59e0b)', color:'white', border:'none', borderRadius:10, fontFamily:'inherit', fontWeight:700, fontSize:14, cursor:'pointer', boxShadow:'0 4px 14px rgba(245,158,11,0.25)', display:'flex', alignItems:'center', justifyContent:'center', gap:7 }}>
+          <button onClick={printReport} style={{ width:'100%', padding:12, background:'linear-gradient(135deg,#9A6418,#B7791F)', color:'white', border:'none', borderRadius:10, fontFamily:'inherit', fontWeight:700, fontSize:14, cursor:'pointer', boxShadow:'0 4px 14px rgba(183,121,31,0.25)', display:'flex', alignItems:'center', justifyContent:'center', gap:7 }}>
             <Printer size={15} strokeWidth={2.5} /> Print / Save as PDF
           </button>
         </Card>

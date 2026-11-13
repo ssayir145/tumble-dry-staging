@@ -96,11 +96,13 @@ export default function Layout({ children }) {
       <aside className="app-sidebar">
         {/* Logo */}
         <div className="nav-logo">
-          <span className="nav-logo-icon"><Shirt size={20} strokeWidth={2.5} /></span>
-          <span className="nav-logo-text">Tumbledry</span>
+          <img src="/posh-tulip.png" alt="" className="nav-logo-icon" />
+          <span className="nav-logo-text">
+            <span className="nav-logo-word">POSH</span>
+            <span className="nav-logo-sub">Fabric care &amp; dry cleaners</span>
+          </span>
         </div>
 
-        <div className="nav-section-label">Menu</div>
 
         {NAV_ALL.map(item => (
           <NavLink
@@ -216,7 +218,7 @@ export default function Layout({ children }) {
               </button>
               <button
                 onClick={() => { logout(); setMoreOpen(false) }}
-                style={{ flex: 1, padding: 12, borderRadius: 10, background: 'var(--rose-dim)', border: '1px solid rgba(244,63,94,0.2)', fontFamily: 'inherit', fontWeight: 600, fontSize: 13, cursor: 'pointer', color: 'var(--rose)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+                style={{ flex: 1, padding: 12, borderRadius: 10, background: 'var(--rose-dim)', border: '1px solid rgba(194,80,30,0.2)', fontFamily: 'inherit', fontWeight: 600, fontSize: 13, cursor: 'pointer', color: 'var(--rose)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
               >
                 <LogOut size={15} /> Sign Out
               </button>
@@ -227,8 +229,8 @@ export default function Layout({ children }) {
 
       <style>{`
         @keyframes leadPulse {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(244,63,94,0.5); }
-          50%       { box-shadow: 0 0 0 4px rgba(244,63,94,0); }
+          0%, 100% { box-shadow: 0 0 0 0 rgba(194,80,30,0.5); }
+          50%       { box-shadow: 0 0 0 4px rgba(194,80,30,0); }
         }
       `}</style>
     </div>

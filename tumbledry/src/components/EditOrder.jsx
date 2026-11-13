@@ -88,7 +88,7 @@ export default function EditOrder({ order, onClose }) {
                 <button key={s.value} onClick={()=>set('status',s.value)} style={{
                   padding:'8px 13px', borderRadius:8, cursor:'pointer',
                   fontFamily:'inherit', fontWeight:600, fontSize:12,
-                  background: active ? 'rgba(13,148,136,0.1)' : 'transparent',
+                  background: active ? 'rgba(183,38,56,0.1)' : 'transparent',
                   color: active ? 'var(--indigo)' : 'var(--tx-secondary)',
                   border: `2px solid ${active ? 'var(--indigo)' : 'var(--bd-subtle)'}`,
                   transition: 'background 0.15s, color 0.15s, border-color 0.15s',
@@ -116,7 +116,7 @@ export default function EditOrder({ order, onClose }) {
         </div>
 
         {form.paymentMethod === 'Split' && (
-          <div className="form-two" style={{ padding:'10px 12px', background:'rgba(13,148,136,0.05)', borderRadius:9, border:'1px solid rgba(13,148,136,0.15)' }}>
+          <div className="form-two" style={{ padding:'10px 12px', background:'rgba(183,38,56,0.05)', borderRadius:9, border:'1px solid rgba(183,38,56,0.15)' }}>
             <div>
               <label style={lbl}>Cash Amount ₹</label>
               <input style={inp} type="number" value={form.cashAmount} onChange={e=>{ set('cashAmount',e.target.value); set('onlineAmount', String(Math.max(0,(order.grandTotal||0)-(parseFloat(e.target.value)||0)))) }} />
@@ -150,14 +150,14 @@ export default function EditOrder({ order, onClose }) {
           </div>
         )}
 
-        {error && <div style={{ fontSize:13, color:'var(--rose)', fontWeight:600, padding:'8px 12px', background:'rgba(244,63,94,0.06)', borderRadius:8 }}>{error}</div>}
+        {error && <div style={{ fontSize:13, color:'var(--rose)', fontWeight:600, padding:'8px 12px', background:'rgba(194,80,30,0.06)', borderRadius:8 }}>{error}</div>}
 
         {/* Actions */}
         <div style={{ display:'flex', gap:10, marginTop:4 }}>
           <button onClick={onClose} style={{ flex:1, padding:12, background:'var(--bg-raised)', border:'1px solid var(--bd-subtle)', borderRadius:9, fontFamily:'inherit', fontWeight:600, cursor:'pointer', color:'var(--tx-secondary)', fontSize:13 }}>
             Cancel
           </button>
-          <button onClick={save} disabled={saving} style={{ flex:2, padding:12, background:'linear-gradient(135deg,#72BF2C,#8DD446)', color:'white', border:'none', borderRadius:9, fontFamily:'inherit', fontWeight:700, cursor:saving?'not-allowed':'pointer', fontSize:14, opacity:saving?0.7:1 }}>
+          <button onClick={save} disabled={saving} style={{ flex:2, padding:12, background:'linear-gradient(135deg,#8F1C2E,#B72638)', color:'white', border:'none', borderRadius:9, fontFamily:'inherit', fontWeight:700, cursor:saving?'not-allowed':'pointer', fontSize:14, opacity:saving?0.7:1 }}>
             {saving ? '⏳ Saving...' : '✅ Save Changes'}
           </button>
         </div>

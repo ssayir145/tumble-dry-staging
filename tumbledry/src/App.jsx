@@ -15,6 +15,7 @@ import Reports from './pages/Reports.jsx'
 import RateCard from './pages/RateCard.jsx'
 import Leads from './pages/Leads.jsx'
 import CustomerBooking from './pages/CustomerBooking.jsx'
+import MyOrders from './pages/MyOrders.jsx'
 
 function AuthedApp() {
   const { darkMode, fetchOrders } = useStore()
@@ -55,10 +56,9 @@ function AuthedApp() {
 export default function App() {
   const location = useLocation()
 
-  // Root is the public customer booking page
-  if (location.pathname === '/') {
-    return <CustomerBooking />
-  }
+  // Public pages: website + customer accounts
+  if (location.pathname === '/') return <CustomerBooking />
+  if (location.pathname === '/account') return <MyOrders />
 
   return <AuthedApp />
 }

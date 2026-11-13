@@ -15,10 +15,10 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointEleme
 
 const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 
-const TEAL = '#72BF2C'
-const TEAL_RGBA = (a) => `rgba(114,191,44,${a})`
-const AMBER_RGBA = (a) => `rgba(245,158,11,${a})`
-const EMERALD_RGBA = (a) => `rgba(16,185,129,${a})`
+const TEAL = '#8F1C2E'
+const TEAL_RGBA = (a) => `rgba(183,38,56,${a})`
+const AMBER_RGBA = (a) => `rgba(183,121,31,${a})`
+const EMERALD_RGBA = (a) => `rgba(61,128,96,${a})`
 
 function chartOpts() {
   return {
@@ -116,7 +116,7 @@ export default function Analytics() {
   const aging = [
     { label: '0–7 Days',  color: 'var(--emerald)', bg: EMERALD_RGBA(0.08), orders: pending.filter(o => (Date.now()-new Date(o.orderDate))/86400000 <= 7) },
     { label: '8–30 Days', color: 'var(--amber)',   bg: AMBER_RGBA(0.08),   orders: pending.filter(o => { const d=(Date.now()-new Date(o.orderDate))/86400000; return d>7&&d<=30 }) },
-    { label: '30+ Days',  color: 'var(--rose)',    bg: 'rgba(244,63,94,0.08)', orders: pending.filter(o => (Date.now()-new Date(o.orderDate))/86400000 > 30) },
+    { label: '30+ Days',  color: 'var(--rose)',    bg: 'rgba(194,80,30,0.08)', orders: pending.filter(o => (Date.now()-new Date(o.orderDate))/86400000 > 30) },
   ]
 
   // ── Peak hours heatmap ─────────────────────────────────────
@@ -143,7 +143,7 @@ export default function Analytics() {
 
   return (
     <div className="page">
-      <h1 style={{ fontSize:20, fontWeight:800, marginBottom:20, color:'var(--tx-primary)', letterSpacing:'-0.4px', display:'flex', alignItems:'center', gap:10 }}>
+      <h1 style={{ fontSize: 26, fontWeight: 500, marginBottom:20, color:'var(--tx-primary)', letterSpacing: '-0.03em', display:'flex', alignItems:'center', gap:10 }}>
         <BarChart2 size={20} strokeWidth={2} /> Analytics
       </h1>
 
@@ -220,7 +220,7 @@ export default function Analytics() {
             <div style={{ fontSize:11, fontWeight:800, textTransform:'uppercase', letterSpacing:'0.6px', color:'var(--tx-tertiary)', marginBottom:14, display:'flex', alignItems:'center', gap:5 }}><Scissors size={12} /> Revenue by Service Type</div>
             <div style={{ height:240 }}>
               <Doughnut
-                data={{ labels: svcLabels, datasets: [{ data: svcVals, backgroundColor: [TEAL,'#F59E0B','#10B981','#F43F5E','#0EA5E9'], borderWidth:0 }] }}
+                data={{ labels: svcLabels, datasets: [{ data: svcVals, backgroundColor: [TEAL,'#B7791F','#3D8060','#F43F5E','#4E6E8E'], borderWidth:0 }] }}
                 options={{ responsive:true, maintainAspectRatio:false, plugins: { legend: { position:'bottom', labels: { color:'#94a3b8', font:{size:11}, padding:14 } }, tooltip: { callbacks: { label: ctx => ` ₹${ctx.parsed.toLocaleString()}` } } } }}
               />
             </div>
@@ -251,7 +251,7 @@ export default function Analytics() {
                       const intensity = count / heatMax
                       const bg = count === 0
                         ? 'var(--bg-raised)'
-                        : `rgba(13,148,136,${0.1 + intensity * 0.85})`
+                        : `rgba(183,38,56,${0.1 + intensity * 0.85})`
                       const color = intensity > 0.5 ? 'white' : count > 0 ? 'var(--indigo)' : 'var(--tx-tertiary)'
                       return (
                         <td key={si} title={`${day} ${SLOTS[si]}: ${count} orders`} style={{
@@ -271,7 +271,7 @@ export default function Analytics() {
           <div style={{ display:'flex', alignItems:'center', gap:8, marginTop:16, fontSize:11, color:'var(--tx-tertiary)' }}>
             <span>Low</span>
             {[0.1,0.3,0.5,0.7,0.9].map(v => (
-              <div key={v} style={{ width:20, height:14, borderRadius:4, background:`rgba(13,148,136,${v})` }} />
+              <div key={v} style={{ width:20, height:14, borderRadius:4, background:`rgba(183,38,56,${v})` }} />
             ))}
             <span>High</span>
           </div>
@@ -306,7 +306,7 @@ export default function Analytics() {
                   ))}
                 </div>
                 {discountOrders.length > 0 && (
-                  <div style={{ fontSize:13, color:'var(--tx-secondary)', padding:'10px 14px', background:AMBER_RGBA(0.06), borderRadius:8, border:'1px solid rgba(245,158,11,0.15)', lineHeight:1.6, display:'flex', alignItems:'flex-start', gap:6 }}>
+                  <div style={{ fontSize:13, color:'var(--tx-secondary)', padding:'10px 14px', background:AMBER_RGBA(0.06), borderRadius:8, border:'1px solid rgba(183,121,31,0.15)', lineHeight:1.6, display:'flex', alignItems:'flex-start', gap:6 }}>
                     <Lightbulb size={13} style={{flexShrink:0, opacity:0.7}} /> Discounts on <strong style={{color:'var(--tx-primary)'}}>{((discountOrders.length/active.length)*100).toFixed(1)}%</strong> of orders · total reduction <strong className="mono" style={{color:'var(--rose)'}}>₹{Math.round(totalDiscount).toLocaleString()}</strong> · gross before discounts <strong className="mono" style={{color:'var(--tx-primary)'}}>₹{Math.round(totalGross).toLocaleString()}</strong>
                   </div>
                 )}
@@ -322,14 +322,14 @@ export default function Analytics() {
                 <div style={{ fontSize:13, color:'var(--tx-secondary)', padding:'20px 0', textAlign:'center' }}>No data yet</div>
               ) : topCustomers.map((c, i) => (
                 <div key={c.phone} style={{ display:'flex', alignItems:'center', gap:10, padding:'8px 0', borderBottom:'1px solid var(--bd-subtle)' }}>
-                  <div style={{ width:28, textAlign:'center', fontWeight:800, flexShrink:0, fontSize:i < 3 ? 14 : 13, color:i===0?'#F59E0B':i===1?'#94a3b8':i===2?'#b45309':'var(--tx-tertiary)' }}>
+                  <div style={{ width:28, textAlign:'center', fontWeight:800, flexShrink:0, fontSize:i < 3 ? 14 : 13, color:i===0?'#B7791F':i===1?'#94a3b8':i===2?'#b45309':'var(--tx-tertiary)' }}>
                     {i+1}
                   </div>
                   <div style={{ flex:1, minWidth:0 }}>
                     <div style={{ fontSize:13, fontWeight:700, color:'var(--tx-primary)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{c.name}</div>
                     <div style={{ fontSize:11, color:'var(--tx-secondary)', marginTop:1 }}>{c.phone} · {c.orders} orders</div>
                     <div style={{ height:3, background:'var(--bd-subtle)', borderRadius:99, marginTop:5 }}>
-                      <div style={{ height:3, background:`linear-gradient(90deg, ${TEAL}, #8DD446)`, borderRadius:99, width:`${c.total/maxSpend*100}%`, transition:'width 0.4s' }} />
+                      <div style={{ height:3, background:`linear-gradient(90deg, ${TEAL}, #B72638)`, borderRadius:99, width:`${c.total/maxSpend*100}%`, transition:'width 0.4s' }} />
                     </div>
                   </div>
                   <div className="mono" style={{ fontSize:13, fontWeight:700, color:'var(--indigo)', flexShrink:0 }}>₹{c.total.toLocaleString()}</div>

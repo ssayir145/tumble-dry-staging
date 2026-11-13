@@ -49,19 +49,19 @@ export function Button({ children, variant = 'primary', size = 'md', className, 
 
   const variants = {
     primary: {
-      background: 'linear-gradient(135deg, #72BF2C, #8DD446)',
+      background: 'linear-gradient(135deg, #8F1C2E, #B72638)',
       color: 'white',
       boxShadow: 'var(--shadow-teal)',
     },
     success: {
-      background: 'linear-gradient(135deg, #059669, #10B981)',
+      background: 'linear-gradient(135deg, #265A42, #3D8060)',
       color: 'white',
-      boxShadow: '0 2px 10px rgba(16,185,129,0.22)',
+      boxShadow: '0 2px 10px rgba(61,128,96,0.22)',
     },
     danger: {
       background: 'var(--rose-dim)',
       color: 'var(--rose)',
-      border: '1px solid rgba(244,63,94,0.2)',
+      border: '1px solid rgba(194,80,30,0.2)',
     },
     ghost: {
       background: 'var(--bg-raised)',
@@ -69,19 +69,19 @@ export function Button({ children, variant = 'primary', size = 'md', className, 
       border: '1px solid var(--bd-subtle)',
     },
     amber: {
-      background: 'linear-gradient(135deg, #D97706, #F59E0B)',
+      background: 'linear-gradient(135deg, #9A6418, #B7791F)',
       color: 'white',
       boxShadow: 'var(--shadow-amber)',
     },
     sky: {
-      background: 'rgba(14,165,233,0.1)',
+      background: 'rgba(78,110,142,0.1)',
       color: 'var(--sky)',
-      border: '1px solid rgba(14,165,233,0.2)',
+      border: '1px solid rgba(78,110,142,0.2)',
     },
     indigo: {
       background: 'var(--indigo-dim)',
       color: 'var(--indigo)',
-      border: '1px solid rgba(13,148,136,0.2)',
+      border: '1px solid rgba(183,38,56,0.2)',
     },
   }
 
@@ -182,12 +182,12 @@ export function Select({ label, children, style, ...props }) {
 /* ── Badge ── */
 export function Badge({ children, color = 'teal' }) {
   const colors = {
-    teal:    { bg: 'rgba(114,191,44,0.12)',  color: '#5FAD1A', border: 'rgba(114,191,44,0.25)'  },
-    indigo:  { bg: 'rgba(114,191,44,0.12)',  color: '#5FAD1A', border: 'rgba(114,191,44,0.25)'  },
-    amber:   { bg: 'rgba(245,158,11,0.12)',  color: '#B45309', border: 'rgba(245,158,11,0.2)'  },
-    emerald: { bg: 'rgba(16,185,129,0.12)',  color: '#059669', border: 'rgba(16,185,129,0.2)'  },
-    rose:    { bg: 'rgba(244,63,94,0.10)',   color: '#E11D48', border: 'rgba(244,63,94,0.2)'   },
-    sky:     { bg: 'rgba(14,165,233,0.10)',  color: '#0369A1', border: 'rgba(14,165,233,0.2)'  },
+    teal:    { bg: 'rgba(183,38,56,0.12)',  color: '#B72638', border: 'rgba(183,38,56,0.25)'  },
+    indigo:  { bg: 'rgba(183,38,56,0.12)',  color: '#B72638', border: 'rgba(183,38,56,0.25)'  },
+    amber:   { bg: 'rgba(183,121,31,0.12)',  color: '#B45309', border: 'rgba(183,121,31,0.2)'  },
+    emerald: { bg: 'rgba(61,128,96,0.12)',  color: '#265A42', border: 'rgba(61,128,96,0.2)'  },
+    rose:    { bg: 'rgba(194,80,30,0.10)',   color: '#E11D48', border: 'rgba(194,80,30,0.2)'   },
+    sky:     { bg: 'rgba(78,110,142,0.10)',  color: '#3E5A76', border: 'rgba(78,110,142,0.2)'  },
     gray:    { bg: 'rgba(120,113,108,0.12)', color: '#78716C', border: 'rgba(120,113,108,0.2)' },
   }
   const c = colors[color] || colors.teal
