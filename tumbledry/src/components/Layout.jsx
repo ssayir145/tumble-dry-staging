@@ -9,7 +9,7 @@ import { api } from '../lib/api.js'
 import {
   ShoppingBag, LayoutDashboard, CreditCard, Users,
   TrendingUp, FileText, Tag, UserCheck,
-  Sun, Moon, LogOut, MoreHorizontal, Shirt, Inbox, Repeat, MessageSquareHeart, Bike,
+  Sun, Moon, LogOut, MoreHorizontal, Shirt, Inbox, Repeat, MessageSquareHeart, Bike, Users2,
 } from 'lucide-react'
 
 const NAV_PRIMARY = [
@@ -21,6 +21,7 @@ const NAV_PRIMARY = [
 
 const NAV_MORE = [
   { path: '/dispatch',  icon: Bike,       label: 'Pickups & deliveries' },
+  { path: '/team',      icon: Users2,     label: 'Team & workshop' },
   { path: '/customers', icon: Users,      label: 'Customers' },
   { path: '/repeat',    icon: Repeat,     label: 'Repeat customers' },
   { path: '/feedback',  icon: MessageSquareHeart, label: 'Feedback' },

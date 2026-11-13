@@ -19,6 +19,7 @@ import MyOrders from './pages/MyOrders.jsx'
 import Feedback from './pages/Feedback.jsx'
 import RiderApp from './pages/RiderApp.jsx'
 import Dispatch from './pages/Dispatch.jsx'
+import Team from './pages/Team.jsx'
 import RepeatCustomers from './pages/RepeatCustomers.jsx'
 
 function AuthedApp() {
@@ -52,6 +53,7 @@ function AuthedApp() {
         <Route path="/leads"      element={<Leads />}           />
         <Route path="/feedback"   element={<Feedback />}        />
         <Route path="/dispatch"   element={<Dispatch />}        />
+        <Route path="/team"       element={<Team />}            />
         <Route path="/repeat"     element={<RepeatCustomers />} />
         {/* Legacy redirect */}
         <Route path="/book"       element={<Navigate to="/" replace />} />
@@ -66,7 +68,7 @@ export default function App() {
   // Public pages: website + customer accounts
   if (location.pathname === '/') return <CustomerBooking />
   if (location.pathname === '/account') return <MyOrders />
-  if (location.pathname === '/rider') return <RiderApp />
+  if (location.pathname === '/rider' || location.pathname === '/work') return <RiderApp />
 
   return <AuthedApp />
 }

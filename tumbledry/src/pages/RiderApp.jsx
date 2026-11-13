@@ -5,6 +5,10 @@ import Pusher from 'pusher-js'
 import { api, getValidToken, RIDER_TOKEN_KEY } from '../lib/api.js'
 import './customer-site.css'
 import './rider.css'
+import WorkQueue from './WorkQueue.jsx'
+
+const ROLE_KEY = 'posh-worker-role'
+const ROLE_LABEL = { rider: 'Riders', washer: 'Washing', presser: 'Pressing & packing' }
 
 const STORE_PHONE = '8899912859'
 const digits = v => String(v || '').replace(/\D/g, '')
@@ -24,14 +28,14 @@ function Login({ onIn }) {
     setBusy(true)
     try {
       const r = await api.rider.signIn(digits(phone), pin)
-      localStorage.setItem(RIDER_TOKEN_KEY, r.token); onIn(r.token)
+      localStorage.setItem(RIDER_TOKEN_KEY, r.token); localStorage.setItem(ROLE_KEY, r.workerRole || 'rider'); onIn(r.token, r.workerRole || 'rider')
     } catch (e2) { setError(e2.message) } finally { setBusy(false) }
   }
   return (
     <div className="rd-login">
       <img src="/posh-tulip.png" alt="" />
-      <h1 className="ps-display">Rider login</h1>
-      <p>Posh pickups and deliveries</p>
+      <h1 className="ps-display">Staff login</h1>
+      <p>Riders, washermen and pressmen</p>
       <form className="ps-form" onSubmit={submit} noValidate>
         {error && <div className="ps-error" role="alert">{error}</div>}
         <div className="ps-field-group">
@@ -201,18 +205,21 @@ function Jobs({ token, onLogOut }) {
 
 export default function RiderApp() {
   const [token, setToken] = useState(() => getValidToken(localStorage, RIDER_TOKEN_KEY))
-  const logOut = () => { localStorage.removeItem(RIDER_TOKEN_KEY); setToken(null) }
+  const [role, setRole] = useState(() => localStorage.getItem(ROLE_KEY) || 'rider')
+  const logOut = () => { localStorage.removeItem(RIDER_TOKEN_KEY); localStorage.removeItem(ROLE_KEY); setToken(null) }
   return (
     <div className="ps rd">
       <header className="ps-header">
         <div className="ps-wrap ps-header-in">
           <span className="ps-brand">
             <img src="/posh-tulip.png" alt="" />
-            <span><span className="ps-brand-word">POSH</span><span className="ps-brand-sub">Riders</span></span>
+            <span><span className="ps-brand-word">POSH</span><span className="ps-brand-sub">{token ? ROLE_LABEL[role] : 'Team'}</span></span>
           </span>
         </div>
       </header>
-      <main className="ps-wrap">{token ? <Jobs token={token} onLogOut={logOut} /> : <Login onIn={setToken} />}</main>
+      <main className="ps-wrap">{!token ? <Login onIn={(t, r) => { setRole(r); setToken(t) }} />
+        : role === 'washer' || role === 'presser' ? <WorkQueue token={token} onLogOut={logOut} />
+        : <Jobs token={token} onLogOut={logOut} />}</main>
     </div>
   )
 }

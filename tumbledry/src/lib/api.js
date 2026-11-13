@@ -74,7 +74,7 @@ export const api = {
   },
   dispatch: {
     getAll:      ()                 => request('/dispatch'),
-    addRider:    (name, phone, pin) => request('/dispatch', { method: 'POST', body: JSON.stringify({ action: 'ADD_RIDER', name, phone, pin }) }),
+    addRider:    (name, phone, pin, role = 'rider') => request('/dispatch', { method: 'POST', body: JSON.stringify({ action: 'ADD_RIDER', name, phone, pin, role }) }),
     updateRider: (id, changes)      => request('/dispatch', { method: 'POST', body: JSON.stringify({ action: 'UPDATE_RIDER', id, ...changes }) }),
     createJob:   (job)              => request('/dispatch', { method: 'POST', body: JSON.stringify({ action: 'CREATE_JOB', ...job }) }),
     assign:      (jobId, riderId)   => request('/dispatch', { method: 'POST', body: JSON.stringify({ action: 'ASSIGN', jobId, riderId }) }),
@@ -84,6 +84,11 @@ export const api = {
     signIn:  (phone, pin)                 => call('/dispatch', { method: 'POST', body: JSON.stringify({ action: 'RIDER_LOGIN', phone, pin }) }),
     jobs:    (token)                      => call('/dispatch', { token }),
     act:     (token, action, jobId, extra) => call('/dispatch', { token, method: 'POST', body: JSON.stringify({ action, jobId, ...extra }) }),
+  },
+  work: {
+    board:  ()                      => request('/work'),
+    queue:  (token)                 => call('/work', { token }),
+    act:    (token, action, extra)  => call('/work', { token, method: 'POST', body: JSON.stringify({ action, ...extra }) }),
   },
   customer: {
     setup:    (phone, tag, pin, name) => call('/customer', { method: 'POST', body: JSON.stringify({ action: 'SETUP', phone, tag, pin, name }) }),

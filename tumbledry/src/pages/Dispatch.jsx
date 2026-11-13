@@ -48,7 +48,8 @@ export default function Dispatch() {
   // Layout re-broadcasts rider updates as a window event
   useEffect(() => { const h = () => load(); window.addEventListener('posh-dispatch-changed', h); return () => window.removeEventListener('posh-dispatch-changed', h) }, [load])
 
-  const riders = data?.riders || []
+  // Washermen and pressmen share the workers table; only riders do pickups and deliveries
+  const riders = (data?.riders || []).filter(r => (r.role || 'rider') === 'rider')
   const jobs = data?.jobs || []
   const riderName = id => riders.find(r => r.id === id)?.name || '—'
   const active = jobs.filter(j => j.status === 'open' || j.status === 'assigned' || j.status === 'failed')
@@ -180,7 +181,7 @@ export default function Dispatch() {
       {tab === 'riders' && (
         <>
           <section className="ax-panel">
-            <div className="ax-panel-head"><h3><UserPlus size={14} /> Add a rider</h3><p>They log in at <b>/rider</b> with this phone number and PIN.</p></div>
+            <div className="ax-panel-head"><h3><UserPlus size={14} /> Add a rider</h3><p>They log in at <b>/rider</b> with this phone number and PIN. Washermen and pressmen are added under Team &amp; workshop.</p></div>
             <form className="dp-add" onSubmit={async e => {
               e.preventDefault(); setRiderMsg(null)
               try { await api.dispatch.addRider(newRider.name, newRider.phone, newRider.pin); setRiderMsg({ ok: true, t: `${newRider.name} added. Share the phone and PIN with them.` }); setNewRider({ name: '', phone: '', pin: '' }); load() }

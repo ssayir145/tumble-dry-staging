@@ -66,6 +66,7 @@ async function ensureTables(sql) {
       outcome_note   TEXT DEFAULT ''
     )`
   await sql`CREATE INDEX IF NOT EXISTS idx_rider_jobs_status ON rider_jobs(status)`
+  await sql`ALTER TABLE riders ADD COLUMN IF NOT EXISTS role TEXT DEFAULT 'rider'`
   await sql`ALTER TABLE leads ADD COLUMN IF NOT EXISTS picked_up_at TIMESTAMPTZ`
   await sql`ALTER TABLE leads ADD COLUMN IF NOT EXISTS picked_up_by TEXT DEFAULT ''`
 }
@@ -90,7 +91,7 @@ export async function handler(event) {
       await new Promise(r => setTimeout(r, 400))
       const rider = (await sql`SELECT * FROM riders WHERE phone = ${phone}`)[0]
       if (!rider || !rider.active || !pinMatches(body.pin, rider.pin_hash)) return err('Phone number or PIN is wrong, or this rider is switched off', 401)
-      return ok({ token: signToken({ role: 'rider', riderId: rider.id, name: rider.name }, RIDER_SESSION_DAYS * 86400), name: rider.name })
+      return ok({ token: signToken({ role: 'rider', riderId: rider.id, name: rider.name }, RIDER_SESSION_DAYS * 86400), name: rider.name, workerRole: rider.role || 'rider' })
     }
 
     const who = bearer(event)
@@ -100,8 +101,9 @@ export async function handler(event) {
 
     // ── Rider ───────────────────────────────────────────────────
     if (isRider) {
-      const rider = (await sql`SELECT id, name, active FROM riders WHERE id = ${who.riderId}`)[0]
+      const rider = (await sql`SELECT id, name, active, role FROM riders WHERE id = ${who.riderId}`)[0]
       if (!rider || !rider.active) return err('Please log in again', 401)
+      if ((rider.role || 'rider') !== 'rider') return err('Pickups and deliveries are for riders', 403)
 
       if (event.httpMethod === 'GET') {
         const mine = await sql`SELECT * FROM rider_jobs WHERE rider_id = ${rider.id} AND status = 'assigned' ORDER BY created_at`
@@ -172,7 +174,7 @@ export async function handler(event) {
 
     // ── Staff ───────────────────────────────────────────────────
     if (event.httpMethod === 'GET') {
-      const riders = await sql`SELECT id, name, phone, active, created_at FROM riders ORDER BY active DESC, name`
+      const riders = await sql`SELECT id, name, phone, active, created_at, role FROM riders ORDER BY active DESC, name`
       const jobs = await sql`
         SELECT * FROM rider_jobs
         WHERE status IN ('open', 'assigned') OR created_at > NOW() - INTERVAL '30 days'
@@ -188,7 +190,8 @@ export async function handler(event) {
       if (!validPin(body.pin)) return err('PIN must be 4 to 6 digits')
       const exists = await sql`SELECT 1 FROM riders WHERE phone = ${phone}`
       if (exists.length) return err('A rider with this phone already exists', 409)
-      await sql`INSERT INTO riders (id, name, phone, pin_hash) VALUES (${'R' + Date.now()}, ${name}, ${phone}, ${hashPin(body.pin)})`
+      const role = ['rider', 'washer', 'presser'].includes(body.role) ? body.role : 'rider'
+      await sql`INSERT INTO riders (id, name, phone, pin_hash, role) VALUES (${'R' + Date.now()}, ${name}, ${phone}, ${hashPin(body.pin)}, ${role})`
       return ok({ success: true })
     }
 
@@ -197,6 +200,7 @@ export async function handler(event) {
         if (!validPin(body.pin)) return err('PIN must be 4 to 6 digits')
         await sql`UPDATE riders SET pin_hash = ${hashPin(body.pin)} WHERE id = ${body.id}`
       }
+      if (['rider', 'washer', 'presser'].includes(body.role)) await sql`UPDATE riders SET role = ${body.role} WHERE id = ${body.id}`
       if (typeof body.active === 'boolean') {
         await sql`UPDATE riders SET active = ${body.active} WHERE id = ${body.id}`
         if (!body.active) await sql`UPDATE rider_jobs SET rider_id = NULL, status = 'open', assigned_at = NULL WHERE rider_id = ${body.id} AND status = 'assigned'`
