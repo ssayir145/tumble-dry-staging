@@ -69,7 +69,7 @@ export function atRisk(board, targets, now = new Date()) {
     const projected = new Date(now.getTime() + remaining * H)
     const lateBy = deadline ? (projected - deadline) / H : null
     const reasons = []
-    if (over > 0) reasons.push(`${Math.round(over)} h over the ${inWash ? 'washing' : o.pressStage === 'pack' ? 'packing' : 'pressing'} target`)
+    if (over > 0) reasons.push(`${fmtHours(over)} over the ${inWash ? 'washing' : o.pressStage === 'pack' ? 'packing' : 'pressing'} target`)
     if (deadline && now > deadline) reasons.push('already past the delivery date')
     else if (lateBy !== null && lateBy > 0) reasons.push('will miss the delivery date at this pace')
     return { ...o, over, lateBy, deadline, reasons, stageName: inWash ? 'Washing' : o.pressStage === 'pack' ? 'Packing' : 'Pressing' }
