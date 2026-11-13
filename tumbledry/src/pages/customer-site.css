@@ -77,11 +77,7 @@
     radial-gradient(45% 60% at 8% 10%, rgba(183,38,56,0.07), transparent 70%);
 }
 .ps-hero-grid { display: grid; gap: var(--ps-space-4); align-items: center; }
-.ps-hero-word {
-  font-size: clamp(84px, 18vw, 150px); line-height: 2.1; color: var(--posh-crimson);
-  opacity: 0.92; margin: -0.5em 0 0.22em; direction: rtl; text-align: left;
-  background: linear-gradient(180deg, #C8344A, var(--posh-wine)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-}
+.ps-hero-word { display: block; width: clamp(150px, 30vw, 230px); height: auto; margin: 0 0 var(--ps-space-3) -6px; filter: drop-shadow(0 8px 14px rgba(112,28,56,0.12)); }
 .ps-hero h1 { font-size: clamp(44px, 8.2vw, 84px); max-width: 12ch; }
 .ps-hero-lede { margin-top: var(--ps-space-3); font-size: 18.5px; max-width: 34em; color: #5A3A43; }
 .ps-hero-lede em { font-family: var(--font-display); font-size: 1.2em; font-style: italic; color: var(--posh-burgundy); }
@@ -180,7 +176,7 @@ textarea.ps-field { resize: vertical; min-height: 92px; }
 
 /* Footer */
 .ps-footer { margin-top: var(--ps-space-6); padding: var(--ps-space-5) 0 var(--ps-space-4); border-top: 1px solid rgba(130,34,66,0.12); text-align: center; }
-.ps-footer .ps-urdu { font-size: 48px; line-height: 2.4; margin-bottom: 4px; color: var(--posh-crimson); }
+.ps-footer-word { display: block; width: 110px; height: auto; margin: 0 auto var(--ps-space-2); }
 .ps-footer p { color: #6E4F57; font-size: 15px; }
 .ps-footer small { display: block; margin-top: var(--ps-space-3); color: #A08A8F; font-size: 13.5px; }
 .ps-staff { background: none; border: none; font: inherit; color: #A08A8F; cursor: pointer; padding: 4px 6px; border-radius: 6px; transition: opacity 0.2s; }

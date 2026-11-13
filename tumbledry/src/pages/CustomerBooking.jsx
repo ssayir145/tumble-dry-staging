@@ -116,7 +116,7 @@ export default function CustomerBooking() {
         <section className="ps-hero">
           <div className="ps-wrap ps-hero-grid">
             <div>
-              <div className="ps-hero-word ps-urdu" aria-hidden="true">پوش</div>
+              <img className="ps-hero-word" src="/posh-urdu.png" alt="" aria-hidden="true" />
               <h1 className="ps-display">Clothes cared for like flowers.</h1>
               <p className="ps-hero-lede">
                 In Kashmiri, <em>posh</em> means flower. From our store in Hazratbal we dry clean, wash and press
@@ -267,7 +267,7 @@ export default function CustomerBooking() {
 
       <footer className="ps-footer">
         <div className="ps-wrap">
-          <div className="ps-urdu" aria-hidden="true">پوش</div>
+          <img className="ps-footer-word" src="/posh-urdu.png" alt="" aria-hidden="true" />
           <p>Posh Fabric Care &amp; Dry Cleaners, Hazratbal, Srinagar</p>
           <p>Shukriya for trusting us with your clothes.</p>
           <small>
