@@ -84,7 +84,7 @@ export default function Leads() {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
         <div>
-          <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800, color: 'var(--tx-primary)', letterSpacing: '-0.02em' }}>
+          <h1 style={{ margin: 0, fontSize: 26, fontWeight: 500, color: 'var(--tx-primary)', letterSpacing: '-0.03em' }}>
             Customer Leads
           </h1>
           <p style={{ margin: '3px 0 0', fontSize: 13, color: 'var(--tx-secondary)' }}>
@@ -274,13 +274,13 @@ export default function Leads() {
                 <button
                   onClick={() => markCancelled(lead)}
                   disabled={actioningId === lead.id}
-                  style={{ ...actionBtn, background: 'var(--bg-raised)', color: 'var(--rose)', border: '1px solid rgba(244,63,94,0.3)' }}
+                  style={{ ...actionBtn, background: 'var(--bg-raised)', color: 'var(--rose)', border: '1px solid rgba(194,80,30,0.3)' }}
                 >
                   <XCircle size={13} />
                   Cancel
                 </button>
                 <a
-                  href={`https://wa.me/91${lead.customer_number}?text=${encodeURIComponent(`Hello ${lead.customer_name}! 👋\n\nThank you for booking with Tumbledry! We've received your request for *${lead.service_type}* (${lead.garment_count} garments).\n\nWe'll contact you shortly to confirm the pickup time.\n\n📍 Banday Lane, Dargah Hazratbal, 190006\n📞 8899912859`)}`}
+                  href={`https://wa.me/91${lead.customer_number}?text=${encodeURIComponent(`Hello ${lead.customer_name}! 👋\n\nThank you for booking with Posh Fabric Care & Dry Cleaners! We've received your request for *${lead.service_type}* (${lead.garment_count} garments).\n\nWe'll contact you shortly to confirm the pickup time.\n\n📍 Banday Lane, Dargah Hazratbal, 190006\n📞 8899912859`)}`}
                   target="_blank"
                   rel="noreferrer"
                   style={{ ...actionBtn, background: '#e8fdf0', color: '#166534', border: '1px solid #86efac', textDecoration: 'none', display: 'inline-flex' }}

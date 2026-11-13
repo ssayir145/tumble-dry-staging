@@ -7,11 +7,11 @@ import { EMPLOYEES, ATT_STATUSES } from '../lib/garments.js'
 import { HardHat, Calendar } from 'lucide-react'
 
 const ATT_COLORS = {
-  Working:    { bg: 'rgba(16,185,129,0.12)',  color: '#059669', border: 'rgba(16,185,129,0.25)'  },
-  Absent:     { bg: 'rgba(244,63,94,0.10)',   color: '#E11D48', border: 'rgba(244,63,94,0.22)'   },
-  Leave:      { bg: 'rgba(245,158,11,0.10)',  color: '#D97706', border: 'rgba(245,158,11,0.22)'  },
+  Working:    { bg: 'rgba(61,128,96,0.12)',  color: '#265A42', border: 'rgba(61,128,96,0.25)'  },
+  Absent:     { bg: 'rgba(194,80,30,0.10)',   color: '#E11D48', border: 'rgba(194,80,30,0.22)'   },
+  Leave:      { bg: 'rgba(183,121,31,0.10)',  color: '#9A6418', border: 'rgba(183,121,31,0.22)'  },
   'Half Day': { bg: 'rgba(251,146,60,0.10)',  color: '#EA580C', border: 'rgba(251,146,60,0.22)'  },
-  Holiday:    { bg: 'rgba(14,165,233,0.10)',  color: '#0369A1', border: 'rgba(14,165,233,0.22)'  },
+  Holiday:    { bg: 'rgba(78,110,142,0.10)',  color: '#3E5A76', border: 'rgba(78,110,142,0.22)'  },
 }
 
 const BADGE_SHORT = { Working: 'W', Absent: 'A', Leave: 'L', 'Half Day': 'H/D', Holiday: 'H' }
@@ -51,7 +51,7 @@ export default function Attendance() {
 
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
-        <h1 style={{ fontSize: 20, fontWeight: 800, color: 'var(--tx-primary)', letterSpacing: '-0.4px', display: 'flex', alignItems: 'center', gap: 10 }}>
+        <h1 style={{ fontSize: 26, fontWeight: 500, color: 'var(--tx-primary)', letterSpacing: '-0.03em', display: 'flex', alignItems: 'center', gap: 10 }}>
           <HardHat size={20} strokeWidth={2} /> Staff Attendance
         </h1>
         <input
@@ -114,7 +114,7 @@ export default function Attendance() {
                       background: isActive ? sc.bg : 'transparent',
                       color: isActive ? sc.color : 'var(--tx-tertiary)',
                       border: `1.5px solid ${isActive ? sc.border : 'var(--bd-subtle)'}`,
-                      transition: 'all 0.15s',
+                      transition: 'transform 0.15s var(--ease-out), opacity 0.15s',
                     }}>
                       {s}
                     </button>
@@ -149,7 +149,7 @@ export default function Attendance() {
                 const dayLabel = new Date(d + 'T12:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short', weekday: 'short' })
                 const isToday = d === todayStr()
                 return (
-                  <tr key={d} style={{ background: isToday ? 'rgba(13,148,136,0.04)' : 'transparent' }}>
+                  <tr key={d} style={{ background: isToday ? 'rgba(183,38,56,0.04)' : 'transparent' }}>
                     <td style={{ padding: '9px 14px', borderBottom: '1px solid var(--bd-subtle)', fontWeight: isToday ? 700 : 400, color: isToday ? 'var(--indigo)' : 'var(--tx-primary)', whiteSpace: 'nowrap' }}>
                       {dayLabel}{isToday ? ' (Today)' : ''}
                     </td>

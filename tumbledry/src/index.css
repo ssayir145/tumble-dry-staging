@@ -1,10 +1,9 @@
 /* ================================================================
-   TUMBLEDRY POS — Design System v2
-   Aesthetic: Fresh Pressings · Figtree + JetBrains Mono
-   Palette: Warm Stone + Teal Primary + Amber Accent
+   POSH — Fabric Care & Dry Cleaners · Design System v3
+   Palette sampled from the tulip logo · Jost (UI) + Cormorant (display)
 ================================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300..800;1,300..800&family=Cormorant:ital,wght@0,500..700;1,500..700&family=Noto+Nastaliq+Urdu:wght@500..700&display=swap");
 
 *, *::before, *::after {
   margin: 0;
@@ -13,73 +12,95 @@
 }
 
 :root {
-  /* ── Brand: Logo lime-green + golden yellow ── */
-  --brand-green:  #72BF2C;
-  --brand-yellow: #FCC200;
+  /* ── Brand (sampled from logo) ── */
+  --posh-cream:        #FBF6EC;
+  --posh-crimson:      #B72638;  /* tulip petal */
+  --posh-crimson-dark: #8F1C2E;  /* petal shadow */
+  --posh-rose:         #E18490;  /* petal highlight */
+  --posh-burgundy:     #822242;  /* POSH wordmark */
+  --posh-wine:         #701C38;  /* wordmark base / bud */
+  --posh-wine-deep:    #4A1226;
+  --posh-leaf:         #3D8060;
+  --posh-leaf-deep:    #265A42;
 
-  /* ── Primary (remaps --indigo so all components update automatically) ── */
-  --indigo:        #5FAD1A;
-  --indigo-light:  #7FCF35;
-  --indigo-dim:    rgba(95, 173, 26, 0.13);
+  --font-ui:      "Jost", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display: "Cormorant", Georgia, serif;
+  --font-urdu:    "Noto Nastaliq Urdu", serif;
 
-  /* ── Status colors ── */
-  --amber:       #F59E0B;
-  --amber-light: #FCD34D;
-  --amber-dim:   rgba(245, 158, 11, 0.14);
-  --emerald:     #10B981;
-  --emerald-dim: rgba(16, 185, 129, 0.14);
-  --rose:        #F43F5E;
-  --rose-dim:    rgba(244, 63, 94, 0.12);
-  --sky:         #0EA5E9;
+  /* ── Legacy names kept so every page re-themes automatically ── */
+  --brand-green:  var(--posh-crimson);
+  --brand-yellow: var(--posh-rose);
 
-  /* ── Light mode surfaces (fresh linen green tint) ── */
-  --bg-base:   #EFF8E6;
-  --bg-card:   #FFFFFF;
-  --bg-raised: #E4F2D6;
-  --bg-input:  #F6FCF0;
-  --bg-hover:  #D9ECC5;
+  /* Primary */
+  --indigo:        var(--posh-crimson);
+  --indigo-light:  #CF4456;
+  --indigo-dim:    rgba(183, 38, 56, 0.10);
 
-  /* ── Light mode text ── */
-  --tx-primary:   #1A2010;
-  --tx-secondary: #5A6B4A;
-  --tx-tertiary:  #8FA37A;
+  /* Status — warnings/errors deliberately NOT red so they never read as brand */
+  --amber:       #B7791F;  /* due today / partial (gold) */
+  --amber-light: #E4B865;
+  --amber-dim:   rgba(183, 121, 31, 0.13);
+  --emerald:     var(--posh-leaf);  /* ready / paid */
+  --emerald-dim: rgba(61, 128, 96, 0.13);
+  --rose:        #C2501E;  /* overdue / delete (burnt orange) */
+  --rose-dim:    rgba(194, 80, 30, 0.11);
+  --sky:         #4E6E8E;  /* in process (slate) */
+
+  /* ── Surfaces: base → card → raised/floating ── */
+  --bg-base:   var(--posh-cream);
+  --bg-card:   #FFFDF9;
+  --bg-raised: #F4EBE0;
+  --bg-input:  #FFFCF7;
+  --bg-hover:  #F0E2DA;
+
+  /* ── Text (wine-tinted, never pure black) ── */
+  --tx-primary:   #2E1219;
+  --tx-secondary: #6E4F57;
+  --tx-tertiary:  #A08A8F;
 
   /* ── Borders ── */
-  --bd-subtle:  #D8EDBE;
-  --bd-default: #C3DF9E;
+  --bd-subtle:  #EADCD3;
+  --bd-default: #DCC6BC;
 
-  /* ── Shadows (green-tinted) ── */
-  --shadow-sm: 0 1px 3px rgba(26, 32, 16, 0.07), 0 1px 2px rgba(26, 32, 16, 0.04);
-  --shadow-md: 0 4px 14px rgba(26, 32, 16, 0.08), 0 2px 6px rgba(26, 32, 16, 0.04);
-  --shadow-lg: 0 12px 32px rgba(26, 32, 16, 0.10), 0 4px 12px rgba(26, 32, 16, 0.06);
-  --shadow-xl: 0 24px 64px rgba(26, 32, 16, 0.12), 0 8px 24px rgba(26, 32, 16, 0.07);
-  --shadow-teal:  0 4px 20px rgba(95, 173, 26, 0.30);
-  --shadow-amber: 0 4px 20px rgba(245, 158, 11, 0.28);
+  /* ── Shadows (layered, wine-tinted, low opacity) ── */
+  --shadow-sm: 0 1px 2px rgba(74, 18, 38, 0.06), 0 1px 3px rgba(74, 18, 38, 0.04);
+  --shadow-md: 0 2px 4px rgba(74, 18, 38, 0.04), 0 6px 16px rgba(74, 18, 38, 0.07);
+  --shadow-lg: 0 4px 8px rgba(74, 18, 38, 0.05), 0 16px 36px rgba(74, 18, 38, 0.10);
+  --shadow-xl: 0 8px 16px rgba(74, 18, 38, 0.06), 0 28px 64px rgba(74, 18, 38, 0.14);
+  --shadow-teal:  0 2px 6px rgba(183, 38, 56, 0.18), 0 8px 24px rgba(183, 38, 56, 0.20);
+  --shadow-amber: 0 2px 6px rgba(183, 121, 31, 0.16), 0 8px 24px rgba(183, 121, 31, 0.18);
 
-  /* ── Motion ── */
+  /* ── Motion (transform/opacity only) ── */
   --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --transition:  all 0.2s var(--ease-out);
+  --transition:  transform 0.2s var(--ease-out), opacity 0.2s var(--ease-out);
 
   /* ── Layout ── */
-  --sidebar-w: 224px;
+  --sidebar-w: 232px;
   --nav-h:     60px;
 }
 
-/* ── Dark mode ── */
+/* ── Dark mode (deep wine, not black) ── */
 html.dark {
-  --bg-base:   #0B110A;
-  --bg-card:   #121A0E;
-  --bg-raised: #182312;
-  --bg-input:  #182312;
-  --bg-hover:  #1F2E17;
+  --bg-base:   #1A0D12;
+  --bg-card:   #24131A;
+  --bg-raised: #2E1820;
+  --bg-input:  #2E1820;
+  --bg-hover:  #3A1F29;
 
-  --tx-primary:   #E8F5D8;
-  --tx-secondary: #85A066;
-  --tx-tertiary:  #556642;
+  --indigo:       #E0566A;
+  --indigo-light: #EE7A8B;
+  --indigo-dim:   rgba(224, 86, 106, 0.14);
+  --emerald:      #5FAE86;
+  --rose:         #E07A4A;
+  --amber:        #D9A24A;
 
-  --bd-subtle:  #1F3016;
-  --bd-default: #2B421E;
+  --tx-primary:   #F6E9EC;
+  --tx-secondary: #C3A1AA;
+  --tx-tertiary:  #85646D;
+
+  --bd-subtle:  #3A222B;
+  --bd-default: #4D2D38;
 
   --shadow-sm: 0 1px 3px rgba(0,0,0,0.40);
   --shadow-md: 0 4px 14px rgba(0,0,0,0.40);
@@ -96,10 +117,10 @@ html {
 }
 
 body {
-  font-family: 'Figtree', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-ui);
   background: var(--bg-base);
   color: var(--tx-primary);
-  line-height: 1.6;
+  line-height: 1.7;
   height: 100%;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -109,7 +130,9 @@ body {
 #root { height: 100%; }
 
 /* ── Typography utilities ── */
-.mono { font-family: 'JetBrains Mono', monospace !important; }
+.mono { font-family: var(--font-ui) !important; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.display { font-family: var(--font-display); letter-spacing: -0.03em; line-height: 1.05; }
+.urdu { font-family: var(--font-urdu); }
 
 /* ── Scrollbar ── */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
@@ -191,8 +214,12 @@ body {
 .app-sidebar {
   width: var(--sidebar-w);
   height: 100vh;
-  background: linear-gradient(170deg, #F4FCE8 0%, #FFFFFF 30%, #FFFFFF 100%);
-  border-right: 1px solid rgba(114, 191, 44, 0.18);
+  background:
+    radial-gradient(120% 40% at 0% 0%, rgba(225, 132, 144, 0.10), transparent 60%),
+    radial-gradient(90% 30% at 100% 100%, rgba(61, 128, 96, 0.06), transparent 60%),
+    var(--bg-card);
+  border-right: 1px solid var(--bd-subtle);
+  box-shadow: 1px 0 0 rgba(255,255,255,0.6), 4px 0 24px rgba(74, 18, 38, 0.04);
   display: flex;
   flex-direction: column;
   padding: 16px 10px;
@@ -204,8 +231,9 @@ body {
 }
 
 html.dark .app-sidebar {
-  background: linear-gradient(170deg, #162210 0%, #121A0E 30%, #121A0E 100%);
-  border-right-color: rgba(95, 173, 26, 0.12);
+  background: radial-gradient(120% 40% at 0% 0%, rgba(183, 38, 56, 0.14), transparent 60%), var(--bg-card);
+  border-right-color: var(--bd-subtle);
+  box-shadow: none;
 }
 
 .app-main {
@@ -221,18 +249,30 @@ html.dark .app-sidebar {
   gap: 10px;
   padding: 10px 12px 20px;
   margin-bottom: 4px;
-  border-bottom: 1px solid rgba(114, 191, 44, 0.2);
+  border-bottom: 1px solid var(--bd-subtle);
   margin-left: -2px;
   margin-right: -2px;
 }
 
-.nav-logo-icon { font-size: 24px; }
+.nav-logo-icon { width: 30px; height: 40px; object-fit: contain; flex-shrink: 0; }
 
 .nav-logo-text {
-  font-size: 15px;
-  font-weight: 800;
-  color: var(--tx-primary);
-  letter-spacing: -0.3px;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+.nav-logo-word {
+  font-size: 19px;
+  font-weight: 500;
+  letter-spacing: 0.32em;
+  color: var(--posh-burgundy);
+}
+html.dark .nav-logo-word { color: #F0B9C2; }
+.nav-logo-sub {
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--tx-tertiary);
 }
 
 .nav-section-label {
@@ -254,9 +294,10 @@ html.dark .app-sidebar {
   font-weight: 600;
   color: var(--tx-secondary);
   text-decoration: none;
-  transition: background 0.15s var(--ease-out), color 0.15s;
+  transition: transform 0.18s var(--ease-spring);
   cursor: pointer;
   white-space: nowrap;
+  position: relative;
   border: 1px solid transparent;
   font-family: inherit;
   background: none;
@@ -267,12 +308,26 @@ html.dark .app-sidebar {
 .nav-item:hover {
   background: var(--bg-raised);
   color: var(--tx-primary);
+  transform: translateX(2px);
+}
+.nav-item:active { transform: translateX(2px) scale(0.98); }
+.nav-item:focus-visible {
+  outline: 2px solid var(--indigo);
+  outline-offset: 2px;
 }
 
 .nav-item.active {
-  background: rgba(114, 191, 44, 0.12);
+  background: var(--indigo-dim);
   color: var(--indigo);
-  border-color: rgba(114, 191, 44, 0.22);
+  border-color: rgba(183, 38, 56, 0.14);
+}
+.nav-item.active::before {
+  content: "";
+  position: absolute;
+  left: -10px; top: 8px; bottom: 8px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--indigo);
 }
 
 .nav-item-icon { font-size: 17px; flex-shrink: 0; }
@@ -396,8 +451,8 @@ html.dark .app-sidebar {
 }
 
 .sheet-nav-item:hover, .sheet-nav-item.active {
-  background: rgba(114, 191, 44, 0.11);
-  border-color: rgba(114, 191, 44, 0.25);
+  background: var(--indigo-dim);
+  border-color: rgba(183, 38, 56, 0.16);
   color: var(--indigo);
 }
 

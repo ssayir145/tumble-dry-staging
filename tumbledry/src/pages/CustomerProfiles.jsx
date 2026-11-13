@@ -6,10 +6,10 @@ import { Card, Spinner, EmptyState, Modal } from '../components/ui/index.jsx'
 import { Users, MapPin, AlertTriangle, MousePointerClick } from 'lucide-react'
 
 const STATUS_COLORS = {
-  pending:   { bg: 'rgba(245,158,11,0.12)',  color: '#D97706' },
-  inprocess: { bg: 'rgba(14,165,233,0.12)',  color: '#0369A1' },
-  completed: { bg: 'rgba(16,185,129,0.12)',  color: '#059669' },
-  delivered: { bg: 'rgba(114,191,44,0.12)',  color: '#5FAD1A' },
+  pending:   { bg: 'rgba(183,121,31,0.12)',  color: '#9A6418' },
+  inprocess: { bg: 'rgba(78,110,142,0.12)',  color: '#3E5A76' },
+  completed: { bg: 'rgba(61,128,96,0.12)',  color: '#265A42' },
+  delivered: { bg: 'rgba(183,38,56,0.12)',  color: '#B72638' },
 }
 
 export default function CustomerProfiles() {
@@ -52,7 +52,7 @@ export default function CustomerProfiles() {
 
   return (
     <div className="page">
-      <h1 style={{ fontSize: 20, fontWeight: 800, marginBottom: 4, color: 'var(--tx-primary)', letterSpacing: '-0.4px', display: 'flex', alignItems: 'center', gap: 10 }}>
+      <h1 style={{ fontSize: 26, fontWeight: 500, marginBottom: 4, color: 'var(--tx-primary)', letterSpacing: '-0.03em', display: 'flex', alignItems: 'center', gap: 10 }}>
         <Users size={20} strokeWidth={2} /> Customer Profiles
       </h1>
       <p style={{ fontSize: 13, color: 'var(--tx-secondary)', marginBottom: 20 }}>{customers.length} unique customers</p>
@@ -79,9 +79,9 @@ export default function CustomerProfiles() {
                   onClick={() => selectCustomer(c.phone)}
                   style={{
                     padding: '12px 14px', cursor: 'pointer', borderBottom: '1px solid var(--bd-subtle)',
-                    background: isSelected ? 'rgba(13,148,136,0.06)' : 'transparent',
+                    background: isSelected ? 'rgba(183,38,56,0.06)' : 'transparent',
                     borderLeft: `3px solid ${isSelected ? 'var(--indigo)' : 'transparent'}`,
-                    transition: 'all 0.15s',
+                    transition: 'transform 0.15s var(--ease-out), opacity 0.15s',
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -95,7 +95,7 @@ export default function CustomerProfiles() {
                     </div>
                   </div>
                   {pending.length > 0 && (
-                    <div style={{ marginTop: 5, display: 'inline-block', padding: '2px 8px', borderRadius: 99, fontSize: 10, fontWeight: 700, background: 'rgba(244,63,94,0.1)', color: 'var(--rose)', border: '1px solid rgba(244,63,94,0.2)' }}>
+                    <div style={{ marginTop: 5, display: 'inline-block', padding: '2px 8px', borderRadius: 99, fontSize: 10, fontWeight: 700, background: 'rgba(194,80,30,0.1)', color: 'var(--rose)', border: '1px solid rgba(194,80,30,0.2)' }}>
                       {pending.length} pending payment{pending.length > 1 ? 's' : ''}
                     </div>
                   )}
@@ -160,7 +160,7 @@ function CustomerDetail({ selected }) {
         </div>
 
         {pending.length > 0 && (
-          <div style={{ marginTop: 14, padding: '11px 13px', background: 'rgba(244,63,94,0.06)', border: '1px solid rgba(244,63,94,0.15)', borderRadius: 9, fontSize: 13, color: 'var(--rose)', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+          <div style={{ marginTop: 14, padding: '11px 13px', background: 'rgba(194,80,30,0.06)', border: '1px solid rgba(194,80,30,0.15)', borderRadius: 9, fontSize: 13, color: 'var(--rose)', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
             <AlertTriangle size={13} strokeWidth={2} /> {pending.length} pending payment(s) totalling
             <strong className="mono" style={{ marginLeft: 4 }}>
               ₹{pending.reduce((s, o) => s + o.grandTotal, 0).toLocaleString()}
@@ -184,7 +184,7 @@ function CustomerDetail({ selected }) {
                     <div style={{ display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap' }}>
                       <span className="mono" style={{ fontSize: 12, fontWeight: 700, color: 'var(--indigo)' }}>{o.tagNumber}</span>
                       <span style={{ padding: '2px 7px', borderRadius: 99, fontSize: 10, fontWeight: 700, background: sc.bg, color: sc.color }}>{o.status}</span>
-                      {isPending && <span style={{ padding: '2px 7px', borderRadius: 99, fontSize: 10, fontWeight: 700, background: 'rgba(244,63,94,0.1)', color: 'var(--rose)' }}>{o.paymentStatus}</span>}
+                      {isPending && <span style={{ padding: '2px 7px', borderRadius: 99, fontSize: 10, fontWeight: 700, background: 'rgba(194,80,30,0.1)', color: 'var(--rose)' }}>{o.paymentStatus}</span>}
                     </div>
                     <div style={{ fontSize: 11, color: 'var(--tx-secondary)', marginTop: 3 }}>
                       {new Date(o.orderDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })} · {o.serviceType} · {o.totalGarments} garments

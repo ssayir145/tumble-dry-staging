@@ -81,7 +81,7 @@ export default function Login({ onLogin }) {
         width: '50vmin',
         height: '50vmin',
         borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(13,148,136,0.08) 0%, transparent 70%)',
+        background: 'radial-gradient(circle, rgba(183,38,56,0.08) 0%, transparent 70%)',
         pointerEvents: 'none',
       }} />
       <div style={{
@@ -91,7 +91,7 @@ export default function Login({ onLogin }) {
         width: '40vmin',
         height: '40vmin',
         borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(245,158,11,0.07) 0%, transparent 70%)',
+        background: 'radial-gradient(circle, rgba(183,121,31,0.07) 0%, transparent 70%)',
         pointerEvents: 'none',
       }} />
 
@@ -100,21 +100,15 @@ export default function Login({ onLogin }) {
         {/* Branding */}
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
           <img
-            src="/logo.png"
-            alt="Tumbledry"
-            style={{ width: 72, height: 72, objectFit: 'contain', margin: '0 auto 16px', display: 'block' }}
+            src="/posh-tulip.png"
+            alt=""
+            style={{ width: 64, height: 88, objectFit: "contain", margin: "0 auto 18px", display: "block", filter: "drop-shadow(0 10px 18px rgba(143,28,46,0.18))" }}
           />
-          <h1 style={{
-            fontSize: 26,
-            fontWeight: 800,
-            color: 'var(--tx-primary)',
-            letterSpacing: '-0.5px',
-            marginBottom: 5,
-          }}>
-            Tumbledry
+          <h1 style={{ fontSize: 34, fontWeight: 500, color: "var(--posh-burgundy)", letterSpacing: "0.32em", marginRight: "-0.32em", lineHeight: 1, marginBottom: 10 }}>
+            POSH
           </h1>
-          <p style={{ fontSize: 14, color: 'var(--tx-secondary)', fontWeight: 500 }}>
-            Sign in to your store
+          <p style={{ fontSize: 14, color: "var(--tx-secondary)", fontWeight: 500 }}>
+            Staff sign-in
           </p>
         </div>
 
@@ -183,7 +177,7 @@ export default function Login({ onLogin }) {
                 marginBottom: 14,
                 padding: '10px 13px',
                 background: 'var(--rose-dim)',
-                border: '1px solid rgba(244,63,94,0.2)',
+                border: '1px solid rgba(194,80,30,0.2)',
                 borderRadius: 9,
                 fontSize: 13,
                 color: 'var(--rose)',
@@ -206,7 +200,7 @@ export default function Login({ onLogin }) {
                 padding: '14px',
                 background: loading || !storeId || !password
                   ? 'var(--bg-raised)'
-                  : 'linear-gradient(135deg, #72BF2C, #8DD446)',
+                  : 'linear-gradient(135deg, #8F1C2E, #B72638)',
                 color: loading || !storeId || !password
                   ? 'var(--tx-tertiary)'
                   : 'white',
@@ -219,7 +213,7 @@ export default function Login({ onLogin }) {
                 boxShadow: loading || !storeId || !password
                   ? 'none'
                   : 'var(--shadow-teal)',
-                transition: 'all 0.2s var(--ease-out)',
+                transition: 'transform 0.2s var(--ease-out), opacity 0.2s',
                 letterSpacing: '0.2px',
               }}
             >

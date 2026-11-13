@@ -112,7 +112,7 @@ export default function RateCard() {
       {/* Header */}
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:20, flexWrap:'wrap', gap:12 }}>
         <div>
-          <h1 style={{ fontSize:20, fontWeight:800, color:'var(--tx-primary)', letterSpacing:'-0.4px', display:'flex', alignItems:'center', gap:10 }}><DollarSign size={20} strokeWidth={2} /> Rate Card Editor</h1>
+          <h1 style={{ fontSize: 26, fontWeight: 500, color:'var(--tx-primary)', letterSpacing: '-0.03em', display:'flex', alignItems:'center', gap:10 }}><DollarSign size={20} strokeWidth={2} /> Rate Card Editor</h1>
           <p style={{ fontSize:13, color:'var(--tx-secondary)', marginTop:3 }}>
             {Object.keys(rates).length} items
             {overrideCount > 0 && <span style={{color:'var(--amber)'}}> · {overrideCount} modified</span>}
@@ -120,10 +120,10 @@ export default function RateCard() {
           </p>
         </div>
         <div style={{ display:'flex', gap:8, flexShrink:0 }}>
-          <button onClick={resetAll} style={{ padding:'9px 14px', borderRadius:8, border:'1px solid rgba(244,63,94,0.25)', background:'rgba(244,63,94,0.08)', color:'var(--rose)', fontFamily:'inherit', fontWeight:600, fontSize:13, cursor:'pointer', display:'flex', alignItems:'center', gap:5 }}>
+          <button onClick={resetAll} style={{ padding:'9px 14px', borderRadius:8, border:'1px solid rgba(194,80,30,0.25)', background:'rgba(194,80,30,0.08)', color:'var(--rose)', fontFamily:'inherit', fontWeight:600, fontSize:13, cursor:'pointer', display:'flex', alignItems:'center', gap:5 }}>
             <RotateCcw size={13} strokeWidth={2} /> Reset All
           </button>
-          <button onClick={()=>setAddModal(true)} style={{ padding:'9px 14px', borderRadius:8, border:'none', background:'linear-gradient(135deg,#10b981,#059669)', color:'white', fontFamily:'inherit', fontWeight:700, fontSize:13, cursor:'pointer', boxShadow:'0 2px 8px rgba(16,185,129,0.2)' }}>
+          <button onClick={()=>setAddModal(true)} style={{ padding:'9px 14px', borderRadius:8, border:'none', background:'linear-gradient(135deg,#3D8060,#265A42)', color:'white', fontFamily:'inherit', fontWeight:700, fontSize:13, cursor:'pointer', boxShadow:'0 2px 8px rgba(61,128,96,0.2)' }}>
             + Add Item
           </button>
         </div>
@@ -147,7 +147,7 @@ export default function RateCard() {
                 <div style={{ display:'flex', alignItems:'center', gap:6, flexShrink:0 }}>
                   <span className="mono" style={{ fontWeight:700, fontSize:15, color:isModified?'var(--amber)':'var(--tx-primary)' }}>₹{price}<span style={{ fontSize:11, fontWeight:400, color:'var(--tx-secondary)' }}>/KG</span></span>
                   <button onClick={()=>{setEditKg({name,price}); setEditKgPrice(String(price))}} style={{ padding:'4px 10px', borderRadius:6, border:'1px solid var(--bd-subtle)', background:'var(--bg-raised)', color:'var(--tx-secondary)', fontSize:11, fontWeight:600, cursor:'pointer', fontFamily:'inherit' }}>Edit</button>
-                  {isModified && <button onClick={()=>resetKgItem(name)} style={{ padding:'4px 8px', borderRadius:6, border:'1px solid rgba(244,63,94,0.2)', background:'rgba(244,63,94,0.08)', color:'var(--rose)', fontSize:11, cursor:'pointer' }}>↩</button>}
+                  {isModified && <button onClick={()=>resetKgItem(name)} style={{ padding:'4px 8px', borderRadius:6, border:'1px solid rgba(194,80,30,0.2)', background:'rgba(194,80,30,0.08)', color:'var(--rose)', fontSize:11, cursor:'pointer' }}>↩</button>}
                 </div>
               </div>
             )
@@ -182,15 +182,15 @@ export default function RateCard() {
                       <div style={{ flex:1, minWidth:0 }}>
                         <div style={{ fontSize:13, fontWeight:600, color:'var(--tx-primary)', display:'flex', alignItems:'center', gap:5, flexWrap:'wrap' }}>
                           <span style={{ whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{name}</span>
-                          {isModified && <span style={{ fontSize:9, padding:'1px 5px', borderRadius:99, background:'rgba(245,158,11,0.15)', color:'var(--amber)', fontWeight:700, flexShrink:0 }}>EDITED</span>}
-                          {isCustom   && <span style={{ fontSize:9, padding:'1px 5px', borderRadius:99, background:'rgba(16,185,129,0.15)', color:'var(--emerald)', fontWeight:700, flexShrink:0 }}>CUSTOM</span>}
+                          {isModified && <span style={{ fontSize:9, padding:'1px 5px', borderRadius:99, background:'rgba(183,121,31,0.15)', color:'var(--amber)', fontWeight:700, flexShrink:0 }}>EDITED</span>}
+                          {isCustom   && <span style={{ fontSize:9, padding:'1px 5px', borderRadius:99, background:'rgba(61,128,96,0.15)', color:'var(--emerald)', fontWeight:700, flexShrink:0 }}>CUSTOM</span>}
                         </div>
                         {isModified && <div style={{ fontSize:11, color:'var(--tx-tertiary)' }}>default ₹{GARMENT_RATES[name]}</div>}
                       </div>
                       <div style={{ display:'flex', alignItems:'center', gap:6, flexShrink:0 }}>
                         <span className="mono" style={{ fontWeight:700, fontSize:15, color:isModified?'var(--amber)':'var(--tx-primary)' }}>₹{price}</span>
                         <button onClick={()=>{setEditItem({name,price}); setEditPrice(String(price))}} style={{ padding:'4px 10px', borderRadius:6, border:'1px solid var(--bd-subtle)', background:'var(--bg-raised)', color:'var(--tx-secondary)', fontSize:11, fontWeight:600, cursor:'pointer', fontFamily:'inherit' }}>Edit</button>
-                        {isModified && <button onClick={()=>resetItem(name)} style={{ padding:'4px 8px', borderRadius:6, border:'1px solid rgba(244,63,94,0.2)', background:'rgba(244,63,94,0.08)', color:'var(--rose)', fontSize:11, cursor:'pointer' }}>↩</button>}
+                        {isModified && <button onClick={()=>resetItem(name)} style={{ padding:'4px 8px', borderRadius:6, border:'1px solid rgba(194,80,30,0.2)', background:'rgba(194,80,30,0.08)', color:'var(--rose)', fontSize:11, cursor:'pointer' }}>↩</button>}
                       </div>
                     </div>
                   )
@@ -212,7 +212,7 @@ export default function RateCard() {
             <div><label style={lbl}>New Price per KG (₹)</label><input style={inp} type="number" min="1" value={editKgPrice} onChange={e=>setEditKgPrice(e.target.value)} onKeyDown={e=>e.key==='Enter'&&saveEditKg()} autoFocus /></div>
             <div style={{ display:'flex', gap:10 }}>
               <button onClick={()=>setEditKg(null)} style={{ flex:1, padding:11, background:'var(--bg-raised)', border:'1px solid var(--bd-subtle)', borderRadius:8, fontFamily:'inherit', fontWeight:600, cursor:'pointer', color:'var(--tx-secondary)' }}>Cancel</button>
-              <button onClick={saveEditKg} style={{ flex:2, padding:11, background:'linear-gradient(135deg,#72BF2C,#8DD446)', color:'white', border:'none', borderRadius:8, fontFamily:'inherit', fontWeight:700, cursor:'pointer' }}>Save Rate</button>
+              <button onClick={saveEditKg} style={{ flex:2, padding:11, background:'linear-gradient(135deg,#8F1C2E,#B72638)', color:'white', border:'none', borderRadius:8, fontFamily:'inherit', fontWeight:700, cursor:'pointer' }}>Save Rate</button>
             </div>
           </div>
         )}
@@ -229,7 +229,7 @@ export default function RateCard() {
             <div><label style={lbl}>New Price (₹)</label><input style={inp} type="number" min="1" value={editPrice} onChange={e=>setEditPrice(e.target.value)} onKeyDown={e=>e.key==='Enter'&&saveEdit()} autoFocus /></div>
             <div style={{ display:'flex', gap:10 }}>
               <button onClick={()=>setEditItem(null)} style={{ flex:1, padding:11, background:'var(--bg-raised)', border:'1px solid var(--bd-subtle)', borderRadius:8, fontFamily:'inherit', fontWeight:600, cursor:'pointer', color:'var(--tx-secondary)' }}>Cancel</button>
-              <button onClick={saveEdit} style={{ flex:2, padding:11, background:'linear-gradient(135deg,#72BF2C,#8DD446)', color:'white', border:'none', borderRadius:8, fontFamily:'inherit', fontWeight:700, cursor:'pointer' }}>Save Price</button>
+              <button onClick={saveEdit} style={{ flex:2, padding:11, background:'linear-gradient(135deg,#8F1C2E,#B72638)', color:'white', border:'none', borderRadius:8, fontFamily:'inherit', fontWeight:700, cursor:'pointer' }}>Save Price</button>
             </div>
           </div>
         )}
@@ -249,7 +249,7 @@ export default function RateCard() {
           </div>
           <div style={{ display:'flex', gap:10 }}>
             <button onClick={()=>setAddModal(false)} style={{ flex:1, padding:11, background:'var(--bg-raised)', border:'1px solid var(--bd-subtle)', borderRadius:8, fontFamily:'inherit', fontWeight:600, cursor:'pointer', color:'var(--tx-secondary)' }}>Cancel</button>
-            <button onClick={addNewItem} style={{ flex:2, padding:11, background:'linear-gradient(135deg,#10b981,#059669)', color:'white', border:'none', borderRadius:8, fontFamily:'inherit', fontWeight:700, cursor:'pointer' }}>Add Item</button>
+            <button onClick={addNewItem} style={{ flex:2, padding:11, background:'linear-gradient(135deg,#3D8060,#265A42)', color:'white', border:'none', borderRadius:8, fontFamily:'inherit', fontWeight:700, cursor:'pointer' }}>Add Item</button>
           </div>
         </div>
       </Modal>

@@ -197,7 +197,7 @@ export default function POS() {
     const discLine = order.discountAmount > 0
       ? `\n━━━━━━━━━━━━━━━━━━\n💸 *Original:* ₹${order.grandTotal+order.discountAmount}\n🏷️ *Discount (${order.discountPct}%):* -₹${order.discountAmount}\n✅ *Bill after discount:* ₹${order.grandTotal}\n━━━━━━━━━━━━━━━━━━`
       : ''
-    const msg = `Hello ${order.customerName}, we have received your laundry order! 👕\n\n🏷️ *Tag #:* ${order.tagNumber}\n👕 *Garments:* ${order.totalGarments}\n\n*Items:*\n${items}${discLine}\n\n💰 *Total Bill: ₹${order.grandTotal}*\n📅 *Delivery By:* ${order.deliveryDate}\n\n━━━━━━━━━━━━━━━━━━\n📍 *Banday Lane, Dargah Hazratbal, 190006*\n📞 *8899912859*\n📸 *Instagram:* https://www.instagram.com/tumbledryhazratbal?igsh=OGw2NTFyZmI4dmpi\n━━━━━━━━━━━━━━━━━━\n\nThank you for choosing Tumbledry! 🙏`
+    const msg = `Hello ${order.customerName}, we have received your laundry order! 👕\n\n🏷️ *Tag #:* ${order.tagNumber}\n👕 *Garments:* ${order.totalGarments}\n\n*Items:*\n${items}${discLine}\n\n💰 *Total Bill: ₹${order.grandTotal}*\n📅 *Delivery By:* ${order.deliveryDate}\n\n━━━━━━━━━━━━━━━━━━\n📍 *Banday Lane, Dargah Hazratbal, 190006*\n📞 *8899912859*\n📸 *Instagram:* https://www.instagram.com/tumbledryhazratbal?igsh=OGw2NTFyZmI4dmpi\n━━━━━━━━━━━━━━━━━━\n\nThank you for choosing Posh Fabric Care & Dry Cleaners! 🙏`
     window.open(`https://web.whatsapp.com/send?phone=91${order.customerNumber}&text=${encodeURIComponent(msg)}`, '_blank')
   }
 
@@ -212,7 +212,7 @@ export default function POS() {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 18 }}>
         <img
-          src="/logo.png" alt="Tumbledry"
+          src="/posh-tulip.png" alt="Posh"
           onError={e => { e.target.style.display = 'none' }}
           style={{ height: 44, width: 'auto', objectFit: 'contain' }}
         />
@@ -327,7 +327,7 @@ export default function POS() {
 
         {/* Split payment inputs */}
         {paymentMethod === 'Split' && (
-          <div style={{ background: 'rgba(13,148,136,0.05)', border: '1px solid rgba(13,148,136,0.2)', borderRadius: 10, padding: '12px 14px', marginTop: 4 }}>
+          <div style={{ background: 'rgba(183,38,56,0.05)', border: '1px solid rgba(183,38,56,0.2)', borderRadius: 10, padding: '12px 14px', marginTop: 4 }}>
             <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--indigo)', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: 5 }}><DollarSign size={11} /> Split Payment — must total ₹{grandTotal || '—'}</div>
             <div className="form-two">
               <div>
@@ -364,7 +364,7 @@ export default function POS() {
               background: billingMode === m ? 'var(--bg-card)' : 'transparent',
               color: billingMode === m ? 'var(--indigo)' : 'var(--tx-secondary)',
               boxShadow: billingMode === m ? 'var(--shadow-sm)' : 'none',
-              transition: 'all 0.15s',
+              transition: 'transform 0.15s var(--ease-out), opacity 0.15s',
             }}>
               {m === 'piece'
                 ? <><Shirt size={13} strokeWidth={2} /> Piece</>
@@ -423,7 +423,7 @@ export default function POS() {
               <button onClick={addPieceItem} style={{
                 padding: '10px 16px', borderRadius: 9, border: 'none', cursor: 'pointer',
                 fontFamily: 'inherit', fontWeight: 700, fontSize: 13,
-                background: 'linear-gradient(135deg,#059669,#10B981)', color: 'white',
+                background: 'linear-gradient(135deg,#265A42,#3D8060)', color: 'white',
                 marginBottom: 14, whiteSpace: 'nowrap',
               }}>
                 + Add
@@ -441,7 +441,7 @@ export default function POS() {
                   <div><label style={lbl}>Price ₹</label><input type="number" style={inp} value={customPrice} onChange={e => setCustomPrice(e.target.value)} /></div>
                   <div><label style={lbl}>Qty</label><input type="number" min="1" style={inp} value={customQty} onChange={e => setCustomQty(e.target.value)} /></div>
                   <div><label style={lbl}>Disc %</label><input type="number" min="0" max="100" style={inp} value={customDisc} onChange={e => setCustomDisc(e.target.value)} /></div>
-                  <button onClick={addCustomItem} style={{ padding: '10px 14px', borderRadius: 9, border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 700, fontSize: 13, background: 'linear-gradient(135deg,#D97706,#F59E0B)', color: 'white', marginBottom: 14, whiteSpace: 'nowrap' }}>
+                  <button onClick={addCustomItem} style={{ padding: '10px 14px', borderRadius: 9, border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 700, fontSize: 13, background: 'linear-gradient(135deg,#9A6418,#B7791F)', color: 'white', marginBottom: 14, whiteSpace: 'nowrap' }}>
                     + Add
                   </button>
                 </div>
@@ -456,7 +456,7 @@ export default function POS() {
             <div><label style={lbl}>Weight (KG)</label><input type="number" step="0.5" style={inp} value={kgWeight} onChange={e => setKgWeight(e.target.value)} placeholder="e.g. 3.5" /></div>
             <div><label style={lbl}>₹ per KG</label><input type="number" style={inp} value={kgPrice} onChange={e => setKgPrice(e.target.value)} /></div>
             <div><label style={lbl}>Pcs</label><input type="number" style={inp} value={kgQty} onChange={e => setKgQty(e.target.value)} /></div>
-            <button onClick={addKgItem} style={{ padding: '10px 14px', borderRadius: 9, border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 700, fontSize: 13, background: 'linear-gradient(135deg,#059669,#10B981)', color: 'white', marginBottom: 14, whiteSpace: 'nowrap' }}>
+            <button onClick={addKgItem} style={{ padding: '10px 14px', borderRadius: 9, border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 700, fontSize: 13, background: 'linear-gradient(135deg,#265A42,#3D8060)', color: 'white', marginBottom: 14, whiteSpace: 'nowrap' }}>
               + Add
             </button>
           </div>
@@ -503,7 +503,7 @@ export default function POS() {
             </div>
 
             {/* Bill summary */}
-            <div style={{ background: 'linear-gradient(135deg, rgba(13,148,136,0.07), rgba(13,148,136,0.03))', border: '1.5px solid rgba(13,148,136,0.2)', borderRadius: 12, padding: '16px 18px', marginBottom: 16 }}>
+            <div style={{ background: 'linear-gradient(135deg, rgba(183,38,56,0.07), rgba(183,38,56,0.03))', border: '1.5px solid rgba(183,38,56,0.2)', borderRadius: 12, padding: '16px 18px', marginBottom: 16 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: 'var(--tx-secondary)', marginBottom: 6 }}>
                 <span>Total Garments</span>
                 <span style={{ fontWeight: 700, color: 'var(--tx-primary)' }}>{totalGarments}</span>
@@ -520,7 +520,7 @@ export default function POS() {
                   </div>
                 </>
               )}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: totalDiscount > 0 ? '1px dashed rgba(13,148,136,0.25)' : 'none', paddingTop: totalDiscount > 0 ? 10 : 0, marginTop: totalDiscount > 0 ? 4 : 0 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: totalDiscount > 0 ? '1px dashed rgba(183,38,56,0.25)' : 'none', paddingTop: totalDiscount > 0 ? 10 : 0, marginTop: totalDiscount > 0 ? 4 : 0 }}>
                 <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--tx-secondary)' }}>Grand Total</span>
                 <span key={cartRevision} className="mono cart-bump" style={{ fontSize: 32, fontWeight: 800, color: 'var(--indigo)', letterSpacing: '-1px' }}>₹{grandTotal.toLocaleString()}</span>
               </div>
@@ -529,7 +529,7 @@ export default function POS() {
             <button onClick={processOrder} style={{
               width: '100%', padding: 14, borderRadius: 10, border: 'none', cursor: 'pointer',
               fontFamily: 'inherit', fontWeight: 800, fontSize: 14,
-              background: 'linear-gradient(135deg, #72BF2C, #8DD446)',
+              background: 'linear-gradient(135deg, #8F1C2E, #B72638)',
               color: 'white', boxShadow: 'var(--shadow-teal)',
               letterSpacing: '0.1px',
             }}>
