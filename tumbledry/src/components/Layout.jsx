@@ -8,7 +8,7 @@ import { logout } from '../pages/Login.jsx'
 import {
   ShoppingBag, LayoutDashboard, CreditCard, Users,
   TrendingUp, FileText, Tag, UserCheck,
-  Sun, Moon, LogOut, MoreHorizontal, Shirt, Inbox,
+  Sun, Moon, LogOut, MoreHorizontal, Shirt, Inbox, Repeat, MessageSquareHeart,
 } from 'lucide-react'
 
 const NAV_PRIMARY = [
@@ -20,6 +20,8 @@ const NAV_PRIMARY = [
 
 const NAV_MORE = [
   { path: '/customers', icon: Users,      label: 'Customers' },
+  { path: '/repeat',    icon: Repeat,     label: 'Repeat customers' },
+  { path: '/feedback',  icon: MessageSquareHeart, label: 'Feedback' },
   { path: '/analytics',  icon: TrendingUp, label: 'Analytics' },
   { path: '/reports',    icon: FileText,   label: 'Reports'   },
   { path: '/rates',      icon: Tag,        label: 'Rate Card' },

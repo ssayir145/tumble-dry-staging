@@ -133,7 +133,67 @@ function LoginPage({ onLoggedIn }) {
 }
 
 /* ── Orders ─────────────────────────────────────────────────── */
-function OrderCard({ o }) {
+const STAR_WORDS = ['', 'Poor', 'Not great', 'Okay', 'Good', 'Excellent']
+
+function Stars({ value, size = 18 }) {
+  return (
+    <span className="ps-stars" aria-label={`${value} out of 5 stars`} style={{ fontSize: size }}>
+      {[1, 2, 3, 4, 5].map(n => <span key={n} className={n <= value ? 'on' : ''} aria-hidden="true">★</span>)}
+    </span>
+  )
+}
+
+function RateOrder({ o, token, onRated }) {
+  const [rating, setRating] = useState(0)
+  const [hover, setHover] = useState(0)
+  const [comment, setComment] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+
+  if (o.feedback) {
+    return (
+      <div className="ps-rated">
+        <div><Stars value={o.feedback.rating} /> <span>You rated this order</span></div>
+        {o.feedback.comment && <p>“{o.feedback.comment}”</p>}
+      </div>
+    )
+  }
+
+  async function submit() {
+    if (!rating) return setError('Tap a star to rate.')
+    setBusy(true); setError('')
+    try {
+      await api.customer.rateOrder(token, o.id, rating, comment)
+      onRated(o.id, { rating, comment: comment.trim() })
+    } catch (e) { setError(e.message) } finally { setBusy(false) }
+  }
+
+  const shown = hover || rating
+  return (
+    <div className="ps-rate">
+      <div className="ps-rate-q">How was this order?</div>
+      <div className="ps-rate-stars" role="radiogroup" aria-label="Rating" onMouseLeave={() => setHover(0)}>
+        {[1, 2, 3, 4, 5].map(n => (
+          <button key={n} type="button" role="radio" aria-checked={rating === n} aria-label={`${n} star${n > 1 ? 's' : ''}`}
+            className={n <= shown ? 'on' : ''} onMouseEnter={() => setHover(n)} onClick={() => setRating(n)}>★</button>
+        ))}
+        <span className="ps-rate-word">{STAR_WORDS[shown]}</span>
+      </div>
+      {rating > 0 && (
+        <>
+          <textarea className="ps-field" rows={3} maxLength={1000}
+            placeholder={rating <= 3 ? 'What went wrong? We’ll call you to make it right.' : 'Anything you’d like to tell us? (optional)'}
+            value={comment} onChange={e => setComment(e.target.value)} />
+          {error && <div className="ps-error" role="alert">{error}</div>}
+          <button className="ps-btn ps-btn-primary" onClick={submit} disabled={busy}>{busy ? 'Sending…' : 'Send rating'}</button>
+        </>
+      )}
+      {!rating && error && <div className="ps-error" role="alert">{error}</div>}
+    </div>
+  )
+}
+
+function OrderCard({ o, token, onRated }) {
   const [open, setOpen] = useState(false)
   const idx = Math.max(0, STEPS.findIndex(s => s.key === o.status))
   const unpaid = o.paymentStatus !== 'Paid'
@@ -176,11 +236,13 @@ function OrderCard({ o }) {
           )}
         </>
       )}
+
+      {(o.status === 'completed' || o.status === 'delivered') && <RateOrder o={o} token={token} onRated={onRated} />}
     </article>
   )
 }
 
-function OrdersSection({ orders }) {
+function OrdersSection({ orders, token, onRated }) {
   const [tab, setTab] = useState('active')
   const active = orders.filter(o => o.status !== 'delivered')
   const past = orders.filter(o => o.status === 'delivered')
@@ -197,7 +259,7 @@ function OrdersSection({ orders }) {
           <Link className="ps-btn ps-btn-primary" to="/#book">Book a pickup</Link>
         </div>
       ) : (
-        <div className="ps-orders">{shown.map(o => <OrderCard key={o.id} o={o} />)}</div>
+        <div className="ps-orders">{shown.map(o => <OrderCard key={o.id} o={o} token={token} onRated={onRated} />)}</div>
       )}
     </>
   )
@@ -336,7 +398,10 @@ function Account({ token, onLogOut }) {
         ))}
       </nav>
 
-      {section === 'orders' && <OrdersSection orders={data.orders} />}
+      {section === 'orders' && (
+        <OrdersSection orders={data.orders} token={token}
+          onRated={(id, fb) => setData(d => ({ ...d, orders: d.orders.map(o => o.id === id ? { ...o, feedback: fb } : o) }))} />
+      )}
       {section === 'pickups' && <PickupsSection bookings={data.bookings || []} />}
       {section === 'profile' && <ProfileSection token={token} name={data.name} phone={data.phone} onLogOut={onLogOut} />}
     </div>

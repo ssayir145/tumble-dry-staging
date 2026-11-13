@@ -327,3 +327,19 @@ textarea.ps-field { resize: vertical; min-height: 92px; }
 .ps-form-flat h3 { font-size: 26px; margin-bottom: var(--ps-space-2); }
 .ps-success-msg { margin-bottom: var(--ps-space-2); padding: 12px 14px; border-radius: var(--ps-radius-sm); background: rgba(61,128,96,0.10); color: var(--posh-leaf-deep); font-size: 14.5px; }
 .ps-logout { justify-self: start; }
+
+/* ── Ratings ── */
+.ps-stars span { color: #E6D6CD; letter-spacing: 1px; }
+.ps-stars span.on { color: #C8912E; }
+.ps-rate, .ps-rated { margin-top: var(--ps-space-3); padding-top: var(--ps-space-2); border-top: 1px dashed #E6D6CD; display: grid; gap: 12px; }
+.ps-rate-q { font-weight: 500; color: var(--posh-wine); }
+.ps-rate-stars { display: flex; align-items: center; gap: 2px; }
+.ps-rate-stars button { padding: 2px 4px; background: none; border: none; font-size: 32px; line-height: 1; color: #E6D6CD; cursor: pointer; transition: transform 0.2s var(--ps-spring); }
+.ps-rate-stars button.on { color: #C8912E; }
+.ps-rate-stars button:hover { transform: scale(1.15); }
+.ps-rate-stars button:active { transform: scale(0.92); }
+.ps-rate-stars button:focus-visible { outline: 2px solid var(--posh-crimson); outline-offset: 2px; border-radius: 6px; }
+.ps-rate-word { margin-left: 10px; font-size: 14.5px; color: #6E4F57; }
+.ps-rate .ps-btn { justify-self: start; }
+.ps-rated > div { display: flex; align-items: center; gap: 10px; font-size: 14px; color: #6E4F57; }
+.ps-rated p { font-family: var(--font-display); font-style: italic; font-size: 19px; color: #5A3A43; line-height: 1.4; }

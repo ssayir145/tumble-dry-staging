@@ -63,10 +63,16 @@ export const api = {
     create:       (lead)                          => fetch(`${BASE}/leads`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(lead) }).then(r => r.json()),
     updateStatus: (id, status, convertedOrderId)  => request('/leads', { method: 'POST', body: JSON.stringify({ action: 'UPDATE_STATUS', id, status, convertedOrderId: convertedOrderId || null }) }),
   },
+  feedback: {
+    getAll:     ()          => request('/feedback'),
+    markCalled: (id, notes) => request('/feedback', { method: 'POST', body: JSON.stringify({ action: 'MARK_CALLED', id, notes }) }),
+    saveNotes:  (id, notes) => request('/feedback', { method: 'POST', body: JSON.stringify({ action: 'UPDATE_NOTES', id, notes }) }),
+  },
   customer: {
     setup:    (phone, tag, pin) => call('/customer', { method: 'POST', body: JSON.stringify({ action: 'SETUP', phone, tag, pin }) }),
     signIn:   (phone, pin)      => call('/customer', { method: 'POST', body: JSON.stringify({ action: 'LOGIN', phone, pin }) }),
     myOrders: (token)           => call('/customer', { token }),
+    rateOrder: (token, orderId, rating, comment) => call('/customer', { token, method: 'POST', body: JSON.stringify({ action: 'FEEDBACK', orderId, rating, comment }) }),
     changePin: (token, currentPin, newPin) => call('/customer', { token, method: 'POST', body: JSON.stringify({ action: 'CHANGE_PIN', currentPin, newPin }) }),
     resetPin: (phone)           => request('/customer', { method: 'POST', body: JSON.stringify({ action: 'RESET_PIN', phone }) }),
   },

@@ -7,6 +7,7 @@
 
 import crypto from 'crypto'
 import { getDb, signToken, bearer, checkAuth, normPhone, ok, err, cors } from './_db.js'
+import { ensureFeedbackTable } from './_feedback.js'
 
 const SESSION_DAYS = 30
 const MAX_ATTEMPTS = 5
@@ -50,7 +51,7 @@ export async function handler(event) {
   if (event.httpMethod === 'OPTIONS') return cors()
 
   let sql
-  try { sql = getDb(); await ensureTable(sql) }
+  try { sql = getDb(); await ensureTable(sql); await ensureFeedbackTable(sql) }
   catch (e) { return err(`Database unavailable: ${e.message}`, 500) }
 
   try {
@@ -77,6 +78,9 @@ export async function handler(event) {
         `
       } catch { /* leads table may not exist yet */ }
 
+      const fb = await sql`SELECT order_id, rating, comment FROM order_feedback WHERE customer_phone = ${me.phone}`
+      const fbByOrder = Object.fromEntries(fb.map(f => [f.order_id, { rating: f.rating, comment: f.comment }]))
+
       return ok({
         name: me.name || '',
         phone: me.phone,
@@ -86,6 +90,7 @@ export async function handler(event) {
           grandTotal: o.grand_total, totalGarments: o.total_garments, discountAmount: o.discount_amount,
           items: (o.cart || []).map(i => ({ name: i.name, qty: i.qty || 1, net: Math.round(i.net || 0) })),
           orderDate: o.order_date, deliveryDate: o.delivery_date,
+          feedback: fbByOrder[o.id] || null,
         })),
         bookings,
       })
@@ -102,6 +107,28 @@ export async function handler(event) {
       if (phone.length !== 10) return err('Enter a 10-digit phone number')
       const res = await sql`DELETE FROM customer_accounts WHERE phone = ${phone} RETURNING phone`
       return ok({ success: true, hadAccount: res.length > 0 })
+    }
+
+    // ── Signed-in customer: rate an order (once, when Ready or Delivered) ──
+    if (body.action === 'FEEDBACK') {
+      const me = bearer(event)
+      if (!me || me.role !== 'customer') return err('Please log in again', 401)
+      const rating = parseInt(body.rating)
+      if (!(rating >= 1 && rating <= 5)) return err('Choose between 1 and 5 stars')
+      const comment = String(body.comment || '').trim().slice(0, 1000)
+      const rows = await sql`
+        SELECT id, tag_number, status, customer_name FROM orders
+        WHERE id = ${String(body.orderId || '')} AND deleted = false
+          AND right(regexp_replace(regexp_replace(customer_number, '[.]0+$', ''), '[^0-9]', '', 'g'), 10) = ${me.phone}`
+      const order = rows[0]
+      if (!order) return err('Order not found', 404)
+      if (order.status !== 'completed' && order.status !== 'delivered') return err('You can rate an order once it’s ready')
+      const inserted = await sql`
+        INSERT INTO order_feedback (id, order_id, tag_number, customer_phone, customer_name, rating, comment)
+        VALUES (${'FB' + Date.now()}, ${order.id}, ${order.tag_number}, ${me.phone}, ${order.customer_name || me.name || ''}, ${rating}, ${comment})
+        ON CONFLICT (order_id) DO NOTHING RETURNING id`
+      if (!inserted.length) return err('You’ve already rated this order', 409)
+      return ok({ success: true })
     }
 
     // ── Signed-in customer: change PIN ──────────────────────────

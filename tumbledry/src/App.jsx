@@ -16,6 +16,8 @@ import RateCard from './pages/RateCard.jsx'
 import Leads from './pages/Leads.jsx'
 import CustomerBooking from './pages/CustomerBooking.jsx'
 import MyOrders from './pages/MyOrders.jsx'
+import Feedback from './pages/Feedback.jsx'
+import RepeatCustomers from './pages/RepeatCustomers.jsx'
 
 function AuthedApp() {
   const { darkMode, fetchOrders } = useStore()
@@ -46,6 +48,8 @@ function AuthedApp() {
         <Route path="/rates"      element={<RateCard />}         />
         <Route path="/attendance" element={<Attendance />}      />
         <Route path="/leads"      element={<Leads />}           />
+        <Route path="/feedback"   element={<Feedback />}        />
+        <Route path="/repeat"     element={<RepeatCustomers />} />
         {/* Legacy redirect */}
         <Route path="/book"       element={<Navigate to="/" replace />} />
       </Routes>
