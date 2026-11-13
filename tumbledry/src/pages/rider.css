@@ -1,0 +1,45 @@
+/* Rider app — builds on customer-site.css (.ps-*) */
+.rd .ps-wrap { max-width: 640px; }
+.rd-login { padding: var(--ps-space-5) 0; text-align: center; }
+.rd-login img { width: 52px; height: 70px; object-fit: contain; margin: 0 auto var(--ps-space-2); display: block; }
+.rd-login h1 { font-size: 44px; }
+.rd-login > p { color: #6E4F57; margin: 4px 0 var(--ps-space-3); }
+.rd-login .ps-form { text-align: left; }
+.rd-login .ps-btn { width: 100%; }
+
+.rd-main-wrap { padding: var(--ps-space-3) 0 120px; }
+.rd-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: var(--ps-space-3); }
+.rd-head h1 { font-size: 38px; }
+.rd-head p { color: #5A3A43; }
+.rd .ps-tabs button { font-size: 13.5px; padding: 10px 6px; }
+
+.rd-jobs { display: grid; gap: var(--ps-space-2); }
+.rd-job { padding: var(--ps-space-3) 20px; border-radius: var(--ps-radius-md); background: #FFFDF9; border: 1px solid rgba(130,34,66,0.10); border-top: 4px solid var(--posh-crimson); box-shadow: var(--ps-shadow-2); display: grid; gap: 10px; }
+.rd-job.rd-pickup { border-top-color: #4E6E8E; }
+.rd-job-top { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; font-size: 13px; }
+.rd-kind { font-weight: 600; color: var(--posh-crimson); }
+.rd-pickup .rd-kind { color: #3E5A76; }
+.rd-when { color: #8A6E75; }
+.rd-job h3 { font-family: var(--font-display); font-size: 28px; font-weight: 600; color: var(--posh-wine); letter-spacing: -0.02em; line-height: 1.1; }
+.rd-addr { font-size: 16px; color: #2E1219; line-height: 1.5; }
+.rd-facts { display: flex; flex-wrap: wrap; gap: 6px; }
+.rd-facts span { padding: 4px 10px; border-radius: 999px; background: #F4EBE0; font-size: 13px; color: #5A3A43; }
+.rd-facts .rd-collect { background: rgba(183,121,31,0.15); color: #7A4F10; font-weight: 600; }
+.rd-facts .rd-paid { background: rgba(61,128,96,0.12); color: var(--posh-leaf-deep); }
+.rd-facts .rd-gps { background: rgba(78,110,142,0.12); color: #3E5A76; }
+.rd-note { font-size: 14px; color: #6E4F57; font-style: italic; }
+.rd-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.rd-actions .ps-btn { padding: 13px; }
+.rd-main { width: 100%; padding: 17px; font-size: 17px; }
+.rd-link { justify-self: center; padding: 6px 10px; background: none; border: none; font: 500 14px var(--font-ui); color: #8A6E75; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; transition: opacity 0.2s; }
+.rd-link:hover { opacity: 0.7; } .rd-link:active { opacity: 0.5; }
+.rd-link:focus-visible { outline: 2px solid var(--posh-crimson); outline-offset: 2px; border-radius: 4px; }
+.rd-step { display: grid; gap: 10px; padding-top: 10px; border-top: 1px dashed #E6D6CD; }
+.rd-q { font-weight: 500; color: var(--posh-wine); }
+.rd-choice { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.rd-choice button { padding: 13px 6px; border-radius: 12px; border: 1.5px solid #E6D6CD; background: #FFFCF7; font: 500 14px var(--font-ui); color: #5A3A43; cursor: pointer; transition: transform 0.18s var(--ps-spring); }
+.rd-choice button:active { transform: scale(0.97); }
+.rd-choice button:focus-visible { outline: 2px solid var(--posh-crimson); outline-offset: 2px; }
+.rd-choice button.on { border-color: var(--posh-crimson); background: rgba(183,38,56,0.08); color: var(--posh-wine); }
+.rd-store { display: block; margin-top: var(--ps-space-4); text-align: center; color: #8A6E75; font-size: 14px; }
+.rd-toast { position: fixed; left: 16px; right: 16px; bottom: 24px; width: fit-content; margin: 0 auto; text-align: center; padding: 12px 20px; border-radius: 999px; background: var(--posh-leaf-deep); color: #fff; font-size: 15px; box-shadow: var(--ps-shadow-3); z-index: 70; animation: psRise 0.3s var(--ps-out) both; }

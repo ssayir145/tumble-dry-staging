@@ -5,10 +5,11 @@ import { useState, useEffect, useRef } from 'react'
 import Pusher from 'pusher-js'
 import { useStore } from '../store/index.js'
 import { logout } from '../pages/Login.jsx'
+import { api } from '../lib/api.js'
 import {
   ShoppingBag, LayoutDashboard, CreditCard, Users,
   TrendingUp, FileText, Tag, UserCheck,
-  Sun, Moon, LogOut, MoreHorizontal, Shirt, Inbox, Repeat, MessageSquareHeart,
+  Sun, Moon, LogOut, MoreHorizontal, Shirt, Inbox, Repeat, MessageSquareHeart, Bike,
 } from 'lucide-react'
 
 const NAV_PRIMARY = [
@@ -19,6 +20,7 @@ const NAV_PRIMARY = [
 ]
 
 const NAV_MORE = [
+  { path: '/dispatch',  icon: Bike,       label: 'Pickups & deliveries' },
   { path: '/customers', icon: Users,      label: 'Customers' },
   { path: '/repeat',    icon: Repeat,     label: 'Repeat customers' },
   { path: '/feedback',  icon: MessageSquareHeart, label: 'Feedback' },
@@ -76,11 +78,43 @@ export default function Layout({ children }) {
     const channel = pusher.subscribe('tumbledry-leads')
     channel.bind('new-lead', () => { fetchLeads() })
 
+    // Riders marking pickups / deliveries: refresh orders + leads, and tell the dispatch page
+    const dispatch = pusher.subscribe('posh-dispatch')
+    dispatch.bind('changed', () => {
+      useStore.getState().refreshOrders()
+      fetchLeads()
+      window.dispatchEvent(new Event('posh-dispatch-changed'))
+    })
+
     return () => {
       channel.unbind_all()
+      dispatch.unbind_all()
+      pusher.unsubscribe('posh-dispatch')
       pusher.unsubscribe('tumbledry-leads')
       pusher.disconnect()
     }
+  }, [])
+
+  // Fallback when live push isn't available: every 30s check rider jobs + leads (small requests).
+  // If any job changed since last check, refresh orders quietly and tell the dispatch page.
+  useEffect(() => {
+    let lastSig = null
+    const tick = async () => {
+      if (document.hidden) return
+      fetchLeads()
+      try {
+        const { jobs } = await api.dispatch.getAll()
+        const sig = jobs.map(j => `${j.id}:${j.status}:${j.rider_id || ''}`).join('|')
+        if (lastSig !== null && sig !== lastSig) {
+          useStore.getState().refreshOrders()
+          window.dispatchEvent(new Event('posh-dispatch-changed'))
+        }
+        lastSig = sig
+      } catch { /* offline or not ready — try next tick */ }
+    }
+    tick()
+    const id = setInterval(tick, 30000)
+    return () => clearInterval(id)
   }, [])
 
   // Sound alert when new leads arrive

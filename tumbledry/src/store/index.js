@@ -19,6 +19,11 @@ export const useStore = create((set, get) => ({
     }
   },
 
+  // Background refresh (no loading spinner), e.g. when a rider marks an order delivered
+  refreshOrders: async () => {
+    try { const { orders } = await api.orders.getAll(); set({ orders }) } catch { /* keep current list */ }
+  },
+
   upsertOrder: async (order) => {
     await api.orders.upsert(order)
     // Optimistic update

@@ -4,6 +4,7 @@
 const BASE = '/.netlify/functions'
 export const STAFF_TOKEN_KEY = 'posh-staff-token'
 export const CUSTOMER_TOKEN_KEY = 'posh-customer-token'
+export const RIDER_TOKEN_KEY = 'posh-rider-token'
 
 function tokenExpired(token) {
   try {
@@ -69,6 +70,19 @@ export const api = {
     getAll:     ()          => request('/feedback'),
     markCalled: (id, notes) => request('/feedback', { method: 'POST', body: JSON.stringify({ action: 'MARK_CALLED', id, notes }) }),
     saveNotes:  (id, notes) => request('/feedback', { method: 'POST', body: JSON.stringify({ action: 'UPDATE_NOTES', id, notes }) }),
+  },
+  dispatch: {
+    getAll:      ()                 => request('/dispatch'),
+    addRider:    (name, phone, pin) => request('/dispatch', { method: 'POST', body: JSON.stringify({ action: 'ADD_RIDER', name, phone, pin }) }),
+    updateRider: (id, changes)      => request('/dispatch', { method: 'POST', body: JSON.stringify({ action: 'UPDATE_RIDER', id, ...changes }) }),
+    createJob:   (job)              => request('/dispatch', { method: 'POST', body: JSON.stringify({ action: 'CREATE_JOB', ...job }) }),
+    assign:      (jobId, riderId)   => request('/dispatch', { method: 'POST', body: JSON.stringify({ action: 'ASSIGN', jobId, riderId }) }),
+    cancel:      (jobId)            => request('/dispatch', { method: 'POST', body: JSON.stringify({ action: 'CANCEL_JOB', jobId }) }),
+  },
+  rider: {
+    signIn:  (phone, pin)                 => call('/dispatch', { method: 'POST', body: JSON.stringify({ action: 'RIDER_LOGIN', phone, pin }) }),
+    jobs:    (token)                      => call('/dispatch', { token }),
+    act:     (token, action, jobId, extra) => call('/dispatch', { token, method: 'POST', body: JSON.stringify({ action, jobId, ...extra }) }),
   },
   customer: {
     setup:    (phone, tag, pin, name) => call('/customer', { method: 'POST', body: JSON.stringify({ action: 'SETUP', phone, tag, pin, name }) }),
