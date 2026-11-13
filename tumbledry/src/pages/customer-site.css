@@ -343,3 +343,11 @@ textarea.ps-field { resize: vertical; min-height: 92px; }
 .ps-rate .ps-btn { justify-self: start; }
 .ps-rated > div { display: flex; align-items: center; gap: 10px; font-size: 14px; color: #6E4F57; }
 .ps-rated p { font-family: var(--font-display); font-style: italic; font-size: 19px; color: #5A3A43; line-height: 1.4; }
+
+/* ── Location + in-account booking ── */
+.ps-loc { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; padding: 12px 14px; border-radius: var(--ps-radius-sm); font-size: 14.5px; }
+.ps-loc.ok { background: rgba(61,128,96,0.10); color: var(--posh-leaf-deep); }
+.ps-loc .ps-order-toggle { margin: 0; }
+.ps-loc-btn { width: 100%; }
+.ps-book-inline { max-width: 640px; }
+.ps-book-inline .ps-btn[type=submit] { width: 100%; }

@@ -40,6 +40,11 @@ async function ensureTable(sql) {
       last_login      TIMESTAMPTZ
     )
   `
+  await sql`ALTER TABLE customer_accounts ADD COLUMN IF NOT EXISTS address TEXT DEFAULT ''`
+  await sql`ALTER TABLE customer_accounts ADD COLUMN IF NOT EXISTS landmark TEXT DEFAULT ''`
+  await sql`ALTER TABLE customer_accounts ADD COLUMN IF NOT EXISTS area TEXT DEFAULT ''`
+  await sql`ALTER TABLE customer_accounts ADD COLUMN IF NOT EXISTS location_lat DOUBLE PRECISION`
+  await sql`ALTER TABLE customer_accounts ADD COLUMN IF NOT EXISTS location_lng DOUBLE PRECISION`
 }
 
 async function latestName(sql, phone) {
@@ -81,9 +86,12 @@ export async function handler(event) {
       const fb = await sql`SELECT order_id, rating, comment FROM order_feedback WHERE customer_phone = ${me.phone}`
       const fbByOrder = Object.fromEntries(fb.map(f => [f.order_id, { rating: f.rating, comment: f.comment }]))
 
+      const acct = (await sql`SELECT address, landmark, area, location_lat, location_lng FROM customer_accounts WHERE phone = ${me.phone}`)[0] || {}
+
       return ok({
         name: me.name || '',
         phone: me.phone,
+        address: { address: acct.address || '', landmark: acct.landmark || '', area: acct.area || '', lat: acct.location_lat, lng: acct.location_lng },
         orders: orders.map(o => ({
           id: o.id, tagNumber: o.tag_number, serviceType: o.service_type, status: o.status,
           paymentStatus: o.payment_status, paymentMethod: o.payment_method,
@@ -128,6 +136,23 @@ export async function handler(event) {
         VALUES (${'FB' + Date.now()}, ${order.id}, ${order.tag_number}, ${me.phone}, ${order.customer_name || me.name || ''}, ${rating}, ${comment})
         ON CONFLICT (order_id) DO NOTHING RETURNING id`
       if (!inserted.length) return err('You’ve already rated this order', 409)
+      return ok({ success: true })
+    }
+
+    // ── Signed-in customer: save pickup address + GPS location ──
+    if (body.action === 'SAVE_ADDRESS') {
+      const me = bearer(event)
+      if (!me || me.role !== 'customer') return err('Please log in again', 401)
+      const clip = (v, n) => String(v || '').trim().slice(0, n)
+      const lat = Number(body.lat), lng = Number(body.lng)
+      const hasLoc = body.lat !== null && body.lat !== undefined && body.lat !== '' &&
+        Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180
+      if (!clip(body.address, 300)) return err('Add your house or street address')
+      await sql`
+        UPDATE customer_accounts
+        SET address = ${clip(body.address, 300)}, landmark = ${clip(body.landmark, 200)}, area = ${clip(body.area, 100)},
+            location_lat = ${hasLoc ? lat : null}, location_lng = ${hasLoc ? lng : null}
+        WHERE phone = ${me.phone}`
       return ok({ success: true })
     }
 

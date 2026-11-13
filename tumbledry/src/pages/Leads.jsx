@@ -44,7 +44,7 @@ function timeAgo(isoStr) {
 }
 
 export default function Leads() {
-  const { leads, leadsLoading, leadsError, fetchLeads, updateLeadStatus, setPendingLeadCustomer } = useStore()
+  const { leads, leadsLoading, leadsError, fetchLeads, updateLeadStatus, deleteLead, setPendingLeadCustomer, orders } = useStore()
   const navigate = useNavigate()
   const [filter, setFilter] = useState('new')
   const [actioningId, setActioningId] = useState(null)
@@ -65,16 +65,36 @@ export default function Leads() {
     setActioningId(null)
   }
 
-  function convertToOrder(lead) {
+  // Marks the request Converted straight away, then opens the POS pre-filled.
+  // The saved order's id is linked back to the request when the order is processed.
+  async function convertToOrder(lead) {
+    setActioningId(lead.id)
+    try { await updateLeadStatus(lead.id, 'converted') } catch (e) { setActioningId(null); return alert('Couldn’t convert: ' + e.message) }
+    setActioningId(null)
     setPendingLeadCustomer({
+      leadId:  lead.id,
       name:    lead.customer_name,
-      number:  lead.customer_number,
-      address: lead.customer_address || '',
+      number:  String(lead.customer_number || '').replace(/\D/g, '').slice(-10),
+      address: [lead.customer_address, lead.landmark && (/^near/i.test(lead.landmark) ? lead.landmark : `Near ${lead.landmark}`)].filter(Boolean).join(', '),
       city:    lead.customer_city || '',
       pincode: '',
     })
     navigate('/pos')
   }
+
+  async function undoConversion(lead) {
+    if (!confirm(`Move ${lead.customer_name}'s request back to New?${lead.converted_order_id ? ' The order that was created stays in the system.' : ''}`)) return
+    setActioningId(lead.id)
+    try { await updateLeadStatus(lead.id, 'new') } finally { setActioningId(null) }
+  }
+
+  async function removeLead(lead) {
+    if (!confirm(`Delete ${lead.customer_name}'s pickup request? This can’t be undone.`)) return
+    setActioningId(lead.id)
+    try { await deleteLead(lead.id) } catch (e) { alert('Couldn’t delete: ' + e.message) } finally { setActioningId(null) }
+  }
+
+  const tagFor = id => orders.find(o => o.id === id)?.tagNumber
 
   const counts = leads.reduce((acc, l) => { acc[l.status] = (acc[l.status] || 0) + 1; return acc }, {})
 
@@ -226,8 +246,13 @@ export default function Leads() {
               {(lead.customer_city || lead.customer_address) && (
                 <div style={infoItem}>
                   <MapPin size={12} style={{ flexShrink: 0 }} />
-                  {[lead.customer_city, lead.customer_address].filter(Boolean).join(', ')}
+                  {[lead.customer_address, lead.landmark && (/^near/i.test(lead.landmark) ? lead.landmark : `near ${lead.landmark}`), lead.customer_city].filter(Boolean).join(', ')}
                 </div>
+              )}
+              {lead.location_lat != null && lead.location_lng != null && (
+                <a className="lead-map" href={`https://www.google.com/maps/dir/?api=1&destination=${lead.location_lat},${lead.location_lng}`} target="_blank" rel="noreferrer">
+                  <MapPin size={12} /> Open in Maps
+                </a>
               )}
               <div style={infoItem}>
                 <Package size={12} style={{ flexShrink: 0 }} />
@@ -293,10 +318,20 @@ export default function Leads() {
               </div>
             )}
 
-            {lead.status === 'converted' && lead.converted_order_id && (
-              <div style={{ fontSize: 12, color: 'var(--tx-tertiary)' }}>
-                <CheckCircle size={12} style={{ verticalAlign: 'middle', marginRight: 4, color: 'var(--brand-green)' }} />
-                Converted → Order #{lead.converted_order_id}
+            {(lead.status === 'converted' || lead.status === 'cancelled') && (
+              <div className="lead-done">
+                <span>
+                  <CheckCircle size={13} />
+                  {lead.status === 'cancelled'
+                    ? 'Cancelled'
+                    : lead.converted_order_id
+                      ? `Converted to order ${tagFor(lead.converted_order_id) ? `tag ${tagFor(lead.converted_order_id)}` : `#${lead.converted_order_id}`}`
+                      : 'Converted. The order will be linked once it’s saved in the POS.'}
+                </span>
+                <span className="lead-done-actions">
+                  <button className="lead-btn" disabled={actioningId === lead.id} onClick={() => undoConversion(lead)}>Undo, move back to New</button>
+                  <button className="lead-btn lead-btn-danger" disabled={actioningId === lead.id} onClick={() => removeLead(lead)}>Delete request</button>
+                </span>
               </div>
             )}
           </div>

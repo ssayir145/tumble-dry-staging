@@ -39,7 +39,7 @@ export default function POS() {
     orders, upsertOrder,
     cart, addToCart, removeFromCart, clearCart,
     orderDiscount, setOrderDiscount,
-    pendingLeadCustomer, clearPendingLeadCustomer,
+    pendingLeadCustomer, clearPendingLeadCustomer, linkLeadToOrder,
   } = useStore()
 
   const [customer,      setCustomer]      = useState({ name:'', number:'', address:'', city:'', pincode:'' })
@@ -68,6 +68,7 @@ export default function POS() {
   const [cashAmount,    setCashAmount]    = useState('')
   const [onlineAmount,  setOnlineAmount]  = useState('')
   const [toast,         setToast]         = useState('')
+  const [fromLead,      setFromLead]      = useState(null) // pickup request this order comes from
   const [cartRevision,  setCartRevision]  = useState(0)
   const dropdownRef = useRef(null)
 
@@ -77,7 +78,9 @@ export default function POS() {
   // Pre-fill customer fields when converting a lead to an order
   useEffect(() => {
     if (pendingLeadCustomer) {
-      setCustomer(pendingLeadCustomer)
+      const { leadId, ...cust } = pendingLeadCustomer
+      setCustomer(cust)
+      if (leadId) setFromLead({ id: leadId, name: cust.name })
       clearPendingLeadCustomer()
     }
   }, [])
@@ -174,6 +177,10 @@ export default function POS() {
     }
     try {
       await upsertOrder(order)
+      if (fromLead) {
+        linkLeadToOrder(fromLead.id, order.id).catch(() => {})
+        setFromLead(null)
+      }
       const tagsWin    = window.open('', '_blank', 'width=700,height=500')
       const receiptWin = window.open('', '_blank', 'width=300,height=600')
       printTagsInWindow(tagsWin, order)
@@ -223,6 +230,13 @@ export default function POS() {
           </div>
         </div>
       </div>
+
+      {fromLead && (
+        <div className="pos-from-lead">
+          <span>Creating the order for <b>{fromLead.name}</b>’s pickup request. It will be linked when you process the order.</span>
+          <button className="lead-btn" onClick={() => setFromLead(null)}>Don’t link</button>
+        </div>
+      )}
 
       {/* ── Customer card ── */}
       <div style={cardStyle}>

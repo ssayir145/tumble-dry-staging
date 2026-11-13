@@ -37,6 +37,9 @@ export async function handler(event) {
       )
     `
     await sql`ALTER TABLE leads ADD COLUMN IF NOT EXISTS pickup_date TEXT DEFAULT ''`
+    await sql`ALTER TABLE leads ADD COLUMN IF NOT EXISTS landmark TEXT DEFAULT ''`
+    await sql`ALTER TABLE leads ADD COLUMN IF NOT EXISTS location_lat DOUBLE PRECISION`
+    await sql`ALTER TABLE leads ADD COLUMN IF NOT EXISTS location_lng DOUBLE PRECISION`
   } catch (e) {
     return err(`DB init error: ${e.message}`, 500)
   }
@@ -77,15 +80,31 @@ export async function handler(event) {
       }
     }
 
+    // Link the saved order to a converted lead — auth required
+    if (body.action === 'LINK_ORDER') {
+      if (!checkAuth(event)) return err('Unauthorized', 401)
+      await sql`UPDATE leads SET status = 'converted', converted_order_id = ${body.orderId} WHERE id = ${body.id}`
+      return ok({ success: true })
+    }
+
+    // Delete a lead (e.g. converted by mistake or a duplicate) — auth required
+    if (body.action === 'DELETE') {
+      if (!checkAuth(event)) return err('Unauthorized', 401)
+      const res = await sql`DELETE FROM leads WHERE id = ${body.id} RETURNING id`
+      return res.length ? ok({ success: true }) : err('Request not found', 404)
+    }
+
     // Create new lead — PUBLIC, no auth
-    const { customerName, customerNumber, customerAddress, customerCity, serviceType, garmentCount, notes, pickupDate } = body
+    const { customerName, customerNumber, customerAddress, customerCity, serviceType, garmentCount, notes, pickupDate, landmark } = body
+    const lat = Number(body.lat), lng = Number(body.lng)
+    const hasLoc = Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180 && (lat !== 0 || lng !== 0)
     if (!customerName?.trim()) return err('Name is required')
     if (!customerNumber?.trim()) return err('Phone number is required')
 
     try {
       const id = `LEAD${Date.now()}`
       await sql`
-        INSERT INTO leads (id, customer_name, customer_number, customer_address, customer_city, service_type, garment_count, notes, pickup_date, status, created_at)
+        INSERT INTO leads (id, customer_name, customer_number, customer_address, customer_city, service_type, garment_count, notes, pickup_date, landmark, location_lat, location_lng, status, created_at)
         VALUES (
           ${id},
           ${customerName.trim()},
@@ -96,6 +115,9 @@ export async function handler(event) {
           ${parseInt(garmentCount) || 1},
           ${notes?.trim() || ''},
           ${pickupDate?.trim() || ''},
+          ${String(landmark || '').trim().slice(0, 200)},
+          ${hasLoc ? lat : null},
+          ${hasLoc ? lng : null},
           'new',
           NOW()
         )

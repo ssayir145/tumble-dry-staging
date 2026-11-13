@@ -103,6 +103,19 @@ export const useStore = create((set, get) => ({
     })
   },
 
+  linkLeadToOrder: async (id, orderId) => {
+    await api.leads.linkOrder(id, orderId)
+    set(state => ({ leads: state.leads.map(l => l.id === id ? { ...l, status: 'converted', converted_order_id: orderId } : l) }))
+  },
+
+  deleteLead: async (id) => {
+    await api.leads.remove(id)
+    set(state => {
+      const leads = state.leads.filter(l => l.id !== id)
+      return { leads, newLeadsCount: leads.filter(l => l.status === 'new').length }
+    })
+  },
+
   // Pre-fill POS when converting a lead to an order
   pendingLeadCustomer: null,
   setPendingLeadCustomer: (c) => set({ pendingLeadCustomer: c }),

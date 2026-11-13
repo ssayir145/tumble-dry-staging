@@ -23,7 +23,7 @@ const fmtDate = d => new Date(d).toLocaleDateString('en-IN', { day: 'numeric', m
 const digits = v => v.replace(/\D/g, '')
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`
 
-function Header({ signedIn }) {
+function Header({ signedIn, onBook }) {
   return (
     <header className="ps-header">
       <div className="ps-wrap ps-header-in">
@@ -36,7 +36,7 @@ function Header({ signedIn }) {
         </Link>
         <div className="ps-header-actions">
           <Link className="ps-btn ps-btn-ghost" to="/">Back to site</Link>
-          {signedIn && <Link className="ps-btn ps-btn-primary ps-hide-sm" to="/#book">Book a pickup</Link>}
+          {signedIn && <button className="ps-btn ps-btn-primary ps-hide-sm" onClick={onBook}>Book a pickup</button>}
         </div>
       </div>
     </header>
@@ -242,7 +242,7 @@ function OrderCard({ o, token, onRated }) {
   )
 }
 
-function OrdersSection({ orders, token, onRated }) {
+function OrdersSection({ orders, token, onRated, onBook }) {
   const [tab, setTab] = useState('active')
   const active = orders.filter(o => o.status !== 'delivered')
   const past = orders.filter(o => o.status === 'delivered')
@@ -256,7 +256,7 @@ function OrdersSection({ orders, token, onRated }) {
       {shown.length === 0 ? (
         <div className="ps-empty">
           <p>{tab === 'active' ? 'You have no orders in progress.' : 'No delivered orders yet.'}</p>
-          <Link className="ps-btn ps-btn-primary" to="/#book">Book a pickup</Link>
+          <button className="ps-btn ps-btn-primary" onClick={onBook}>Book a pickup</button>
         </div>
       ) : (
         <div className="ps-orders">{shown.map(o => <OrderCard key={o.id} o={o} token={token} onRated={onRated} />)}</div>
@@ -266,16 +266,18 @@ function OrdersSection({ orders, token, onRated }) {
 }
 
 /* ── Pickups ────────────────────────────────────────────────── */
-function PickupsSection({ bookings }) {
+function PickupsSection({ bookings, onBook, flash }) {
   if (!bookings.length) {
     return (
       <div className="ps-empty">
         <p>You haven’t requested a pickup online yet.</p>
-        <Link className="ps-btn ps-btn-primary" to="/#book">Book a pickup</Link>
+        <button className="ps-btn ps-btn-primary" onClick={onBook}>Book a pickup</button>
       </div>
     )
   }
   return (
+    <>
+    {flash && <div className="ps-success-msg" role="status">{flash}</div>}
     <ul className="ps-list">
       {bookings.map(b => (
         <li key={b.id}>
@@ -287,11 +289,172 @@ function PickupsSection({ bookings }) {
         </li>
       ))}
     </ul>
+    </>
+  )
+}
+
+/* ── Location helpers ───────────────────────────────────────── */
+const mapsLink = (lat, lng) => `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`
+
+function useGps() {
+  const [state, setState] = useState({ busy: false, error: '' })
+  function locate(onFound) {
+    if (!navigator.geolocation) return setState({ busy: false, error: 'This phone or browser can’t share location. Type your address and a landmark instead.' })
+    setState({ busy: true, error: '' })
+    navigator.geolocation.getCurrentPosition(
+      p => { setState({ busy: false, error: '' }); onFound({ lat: +p.coords.latitude.toFixed(6), lng: +p.coords.longitude.toFixed(6), accuracy: Math.round(p.coords.accuracy) }) },
+      e => setState({ busy: false, error: e.code === 1 ? 'Location permission was blocked. Allow location for this site in your browser settings, then try again.' : 'Couldn’t get your location. Step outside or turn on GPS, then try again.' }),
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+    )
+  }
+  return [state, locate]
+}
+
+function LocationField({ loc, onChange }) {
+  const [gps, locate] = useGps()
+  return (
+    <div className="ps-field-group">
+      <span className="ps-label">Exact location for our rider <span>(recommended)</span></span>
+      {loc?.lat != null ? (
+        <div className="ps-loc ok">
+          <span>Location saved{loc.accuracy ? `, accurate to about ${loc.accuracy} m` : ''}.</span>
+          <a className="ps-link" href={mapsLink(loc.lat, loc.lng)} target="_blank" rel="noreferrer">Check on map</a>
+          <button type="button" className="ps-order-toggle" onClick={() => locate(onChange)} disabled={gps.busy}>{gps.busy ? 'Locating…' : 'Update'}</button>
+          <button type="button" className="ps-order-toggle" onClick={() => onChange({ lat: null, lng: null })}>Remove</button>
+        </div>
+      ) : (
+        <button type="button" className="ps-btn ps-btn-ghost ps-loc-btn" onClick={() => locate(onChange)} disabled={gps.busy}>
+          {gps.busy ? 'Finding you…' : 'Use my current location'}
+        </button>
+      )}
+      {gps.error && <div className="ps-error" role="alert" style={{ marginTop: 8 }}>{gps.error}</div>}
+    </div>
+  )
+}
+
+/* ── Book a pickup (inside the account) ─────────────────────── */
+const BOOK_SERVICES = ['Dry Clean', 'Wash & Iron (Per KG)', 'Wash & Fold (Per KG)', 'Steam Iron', 'Premium Laundry', 'Shoe Cleaning', 'Home furnishings', 'Pashmina & shawls']
+const todayISO = () => new Date().toISOString().split('T')[0]
+
+function BookSection({ data, onBooked }) {
+  const saved = data.address || {}
+  const [f, setF] = useState({
+    pickupDate: '', serviceType: 'Dry Clean', garmentCount: 1, notes: '',
+    address: saved.address || '', landmark: saved.landmark || '', area: saved.area || '',
+  })
+  const [loc, setLoc] = useState(saved.lat != null ? { lat: saved.lat, lng: saved.lng } : null)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+  const set = (k, v) => setF(x => ({ ...x, [k]: v }))
+
+  async function submit(e) {
+    e.preventDefault()
+    if (!f.pickupDate) return setError('Choose a pickup date.')
+    if (!f.address.trim() && loc?.lat == null) return setError('Add your address or share your location so our rider can find you.')
+    setBusy(true); setError('')
+    try {
+      const res = await api.leads.create({
+        customerName: data.name || 'Customer', customerNumber: data.phone,
+        customerAddress: f.address.trim(), customerCity: f.area.trim(), landmark: f.landmark.trim(),
+        lat: loc?.lat ?? null, lng: loc?.lng ?? null,
+        pickupDate: f.pickupDate, serviceType: f.serviceType, garmentCount: parseInt(f.garmentCount) || 1, notes: f.notes.trim(),
+      })
+      if (!res.success) throw new Error(res.error || 'The booking didn’t go through. Try again.')
+      onBooked()
+    } catch (e2) { setError(e2.message) } finally { setBusy(false) }
+  }
+
+  return (
+    <form className="ps-form ps-form-flat ps-book-inline" onSubmit={submit} noValidate>
+      <h3>Book a pickup</h3>
+      <p className="ps-profile-note" style={{ marginTop: 0 }}>We’ll call {data.phone} to confirm the time.</p>
+      {error && <div className="ps-error" role="alert">{error}</div>}
+      <div className="ps-row">
+        <div className="ps-field-group">
+          <label className="ps-label" htmlFor="k-date">Pickup date</label>
+          <input id="k-date" type="date" className="ps-field" min={todayISO()} value={f.pickupDate} onChange={e => set('pickupDate', e.target.value)} />
+        </div>
+        <div className="ps-field-group">
+          <label className="ps-label" htmlFor="k-count">Number of pieces</label>
+          <input id="k-count" type="number" min="1" className="ps-field" value={f.garmentCount} onChange={e => set('garmentCount', e.target.value)} />
+        </div>
+      </div>
+      <div className="ps-field-group">
+        <label className="ps-label" htmlFor="k-svc">Service</label>
+        <select id="k-svc" className="ps-field" value={f.serviceType} onChange={e => set('serviceType', e.target.value)}>
+          {BOOK_SERVICES.map(s => <option key={s}>{s}</option>)}
+        </select>
+      </div>
+      <div className="ps-field-group">
+        <label className="ps-label" htmlFor="k-addr">Pickup address</label>
+        <input id="k-addr" className="ps-field" placeholder="House number, street" value={f.address} onChange={e => set('address', e.target.value)} />
+      </div>
+      <div className="ps-row">
+        <div className="ps-field-group">
+          <label className="ps-label" htmlFor="k-land">Landmark <span>(optional)</span></label>
+          <input id="k-land" className="ps-field" placeholder="e.g. opposite the masjid" value={f.landmark} onChange={e => set('landmark', e.target.value)} />
+        </div>
+        <div className="ps-field-group">
+          <label className="ps-label" htmlFor="k-area">Area</label>
+          <input id="k-area" className="ps-field" placeholder="e.g. Hazratbal" value={f.area} onChange={e => set('area', e.target.value)} />
+        </div>
+      </div>
+      <LocationField loc={loc} onChange={l => setLoc(l.lat == null ? null : l)} />
+      <div className="ps-field-group">
+        <label className="ps-label" htmlFor="k-notes">Anything we should know? <span>(optional)</span></label>
+        <textarea id="k-notes" className="ps-field" rows={3} placeholder="Stains, delicate fabrics, a good time to call" value={f.notes} onChange={e => set('notes', e.target.value)} />
+      </div>
+      <button className="ps-btn ps-btn-primary" type="submit" disabled={busy}>{busy ? 'Booking…' : 'Request pickup'}</button>
+      {!saved.address && <p className="ps-profile-note" style={{ marginTop: 10 }}>Tip: save your address under Profile and it will be filled in next time.</p>}
+    </form>
+  )
+}
+
+/* ── Saved pickup address (in Profile) ─────────────────────── */
+function AddressForm({ token, saved, onSaved }) {
+  const [f, setF] = useState({ address: saved.address || '', landmark: saved.landmark || '', area: saved.area || '' })
+  const [loc, setLoc] = useState(saved.lat != null ? { lat: saved.lat, lng: saved.lng } : null)
+  const [msg, setMsg] = useState(null)
+  const [busy, setBusy] = useState(false)
+  const set = (k, v) => setF(x => ({ ...x, [k]: v }))
+
+  async function save(e) {
+    e.preventDefault()
+    setBusy(true); setMsg(null)
+    try {
+      const payload = { ...f, lat: loc?.lat ?? null, lng: loc?.lng ?? null }
+      await api.customer.saveAddress(token, payload)
+      onSaved(payload)
+      setMsg({ bad: false, text: 'Address saved. It will be filled in when you book a pickup.' })
+    } catch (e2) { setMsg({ bad: true, text: e2.message }) } finally { setBusy(false) }
+  }
+
+  return (
+    <form className="ps-form ps-form-flat" onSubmit={save} noValidate>
+      <h3>Pickup address</h3>
+      {msg && <div className={msg.bad ? 'ps-error' : 'ps-success-msg'} role="status">{msg.text}</div>}
+      <div className="ps-field-group">
+        <label className="ps-label" htmlFor="ad-addr">House number and street</label>
+        <input id="ad-addr" className="ps-field" value={f.address} onChange={e => set('address', e.target.value)} />
+      </div>
+      <div className="ps-row">
+        <div className="ps-field-group">
+          <label className="ps-label" htmlFor="ad-land">Landmark <span>(optional)</span></label>
+          <input id="ad-land" className="ps-field" placeholder="e.g. near Hazratbal bus stand" value={f.landmark} onChange={e => set('landmark', e.target.value)} />
+        </div>
+        <div className="ps-field-group">
+          <label className="ps-label" htmlFor="ad-area">Area</label>
+          <input id="ad-area" className="ps-field" value={f.area} onChange={e => set('area', e.target.value)} />
+        </div>
+      </div>
+      <LocationField loc={loc} onChange={l => setLoc(l.lat == null ? null : l)} />
+      <button className="ps-btn ps-btn-primary" type="submit" disabled={busy}>{busy ? 'Saving…' : 'Save address'}</button>
+    </form>
   )
 }
 
 /* ── Profile ────────────────────────────────────────────────── */
-function ProfileSection({ token, name, phone, onLogOut }) {
+function ProfileSection({ token, name, phone, address, onAddressSaved, onLogOut }) {
   const [cur, setCur] = useState('')
   const [next, setNext] = useState('')
   const [next2, setNext2] = useState('')
@@ -321,6 +484,8 @@ function ProfileSection({ token, name, phone, onLogOut }) {
       </dl>
       <p className="ps-profile-note">Name or number wrong? <a className="ps-link" href={WHATSAPP} target="_blank" rel="noreferrer">WhatsApp the store</a> and we’ll update it.</p>
 
+      <AddressForm token={token} saved={address || {}} onSaved={onAddressSaved} />
+
       <form className="ps-form ps-form-flat" onSubmit={changePin} noValidate>
         <h3>Change your PIN</h3>
         {msg && <div className={msg.bad ? 'ps-error' : 'ps-success-msg'} role="status">{msg.text}</div>}
@@ -347,17 +512,17 @@ function ProfileSection({ token, name, phone, onLogOut }) {
 }
 
 /* ── Account shell ──────────────────────────────────────────── */
-function Account({ token, onLogOut }) {
+function Account({ token, onLogOut, section, setSection }) {
   const [data, setData] = useState(null)
   const [error, setError] = useState('')
-  const [section, setSection] = useState('orders')
+  const [flash, setFlash] = useState('')
 
-  useEffect(() => {
-    api.customer.myOrders(token).then(setData).catch(e => {
-      if (e.status === 401) onLogOut()
-      else setError('Couldn’t load your account. Check your connection and refresh.')
-    })
-  }, [token])
+  const load = () => api.customer.myOrders(token).then(setData).catch(e => {
+    if (e.status === 401) onLogOut()
+    else setError('Couldn’t load your account. Check your connection and refresh.')
+  })
+  useEffect(() => { load() }, [token])
+  const onBook = () => { setFlash(''); setSection('book') }
 
   if (error) return <div className="ps-error" role="alert" style={{ marginTop: 40 }}>{error}</div>
   if (!data) return <div className="ps-loading" aria-live="polite">Loading your account…</div>
@@ -370,6 +535,7 @@ function Account({ token, onLogOut }) {
   const SECTIONS = [
     { key: 'orders',  label: 'Orders',  count: data.orders.length },
     { key: 'pickups', label: 'Pickups', count: data.bookings?.length || 0 },
+    { key: 'book',    label: 'Book a pickup' },
     { key: 'profile', label: 'Profile' },
   ]
 
@@ -399,23 +565,25 @@ function Account({ token, onLogOut }) {
       </nav>
 
       {section === 'orders' && (
-        <OrdersSection orders={data.orders} token={token}
+        <OrdersSection orders={data.orders} token={token} onBook={onBook}
           onRated={(id, fb) => setData(d => ({ ...d, orders: d.orders.map(o => o.id === id ? { ...o, feedback: fb } : o) }))} />
       )}
-      {section === 'pickups' && <PickupsSection bookings={data.bookings || []} />}
-      {section === 'profile' && <ProfileSection token={token} name={data.name} phone={data.phone} onLogOut={onLogOut} />}
+      {section === 'pickups' && <PickupsSection bookings={data.bookings || []} onBook={onBook} flash={flash} />}
+      {section === 'book' && <BookSection data={data} onBooked={async () => { await load(); setFlash('Pickup requested. We’ll call you to confirm the time.'); setSection('pickups') }} />}
+      {section === 'profile' && <ProfileSection token={token} name={data.name} phone={data.phone} address={data.address} onAddressSaved={a => setData(d => ({ ...d, address: a }))} onLogOut={onLogOut} />}
     </div>
   )
 }
 
 export default function MyOrders() {
   const [token, setToken] = useState(() => getValidToken(localStorage, CUSTOMER_TOKEN_KEY))
+  const [section, setSection] = useState(() => (window.location.hash === '#book' ? 'book' : 'orders'))
   const logOut = () => { localStorage.removeItem(CUSTOMER_TOKEN_KEY); setToken(null) }
   return (
     <div className="ps">
-      <Header signedIn={!!token} />
+      <Header signedIn={!!token} onBook={() => setSection('book')} />
       <main className="ps-wrap ps-account-main">
-        {token ? <Account token={token} onLogOut={logOut} /> : <LoginPage onLoggedIn={setToken} />}
+        {token ? <Account token={token} onLogOut={logOut} section={section} setSection={setSection} /> : <LoginPage onLoggedIn={setToken} />}
       </main>
     </div>
   )
