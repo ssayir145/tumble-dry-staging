@@ -8,6 +8,14 @@ export async function handler(event) {
 
   const db = getDb()
 
+  // Additive columns: when an order became Ready / Delivered (for on-time and uncollected metrics)
+  try {
+    await db`ALTER TABLE orders ADD COLUMN IF NOT EXISTS ready_at TIMESTAMPTZ`
+    await db`ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivered_at TIMESTAMPTZ`
+  } catch (e) {
+    return err(`DB init error: ${e.message}`, 500)
+  }
+
   // ── GET all orders ──────────────────────────────────────────
   if (event.httpMethod === 'GET') {
     try {
@@ -21,7 +29,8 @@ export async function handler(event) {
           discount_amount::float, discount_pct::float,
           cash_amount::float, online_amount::float,
           rack_location,
-          cart, order_date, delivery_date, deleted
+          cart, order_date, delivery_date, deleted,
+          ready_at, delivered_at
         FROM orders
         ORDER BY order_date DESC
       `
@@ -48,6 +57,8 @@ export async function handler(event) {
         orderDate:       r.order_date,
         deliveryDate:    r.delivery_date,
         deleted:         r.deleted,
+        readyAt:         r.ready_at,
+        deliveredAt:     r.delivered_at,
       }))
       return ok({ orders })
     } catch (e) {
@@ -147,6 +158,15 @@ export async function handler(event) {
           cart             = EXCLUDED.cart,
           delivery_date    = EXCLUDED.delivery_date,
           deleted          = EXCLUDED.deleted,
+          ready_at         = CASE
+                               WHEN orders.ready_at IS NULL
+                                AND EXCLUDED.status IN ('completed', 'delivered')
+                                AND orders.status NOT IN ('completed', 'delivered')
+                               THEN NOW() ELSE orders.ready_at END,
+          delivered_at     = CASE
+                               WHEN orders.delivered_at IS NULL
+                                AND EXCLUDED.status = 'delivered' AND orders.status <> 'delivered'
+                               THEN NOW() ELSE orders.delivered_at END,
           updated_at       = NOW()
       `
       return ok({ success: true })

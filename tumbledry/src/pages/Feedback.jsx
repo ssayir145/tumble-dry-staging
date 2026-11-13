@@ -4,6 +4,9 @@ import { useEffect, useState } from 'react'
 import { api } from '../lib/api.js'
 import { MessageSquareHeart, Phone, PhoneCall, Check, Pencil } from 'lucide-react'
 
+// Ratings below this many stars need a follow-up call from the manager
+const CALL_BELOW = 4
+
 const fmt = d => new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
 const fmtTime = d => new Date(d).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })
 
@@ -16,6 +19,7 @@ function FeedbackCard({ f, onSaved }) {
   const [notes, setNotes] = useState(f.call_notes || '')
   const [busy, setBusy] = useState(false)
   const called = f.status === 'called'
+  const needsCall = f.rating < CALL_BELOW
 
   async function save() {
     setBusy(true)
@@ -26,7 +30,7 @@ function FeedbackCard({ f, onSaved }) {
   }
 
   return (
-    <article className={`fb-card${f.rating <= 2 ? ' is-low' : ''}${called ? ' is-called' : ''}`}>
+    <article className={`fb-card${needsCall ? ' is-low' : ' is-happy'}${called ? ' is-called' : ''}`}>
       <div className="fb-top">
         <div>
           <div className="fb-name">{f.customer_name || 'Customer'}</div>
@@ -57,7 +61,9 @@ function FeedbackCard({ f, onSaved }) {
         </div>
       )}
 
-      {!open && (
+      {!open && !needsCall && <div className="fb-nocall"><Check size={13} strokeWidth={2.5} /> Happy customer, no call needed</div>}
+
+      {!open && needsCall && (
         <div className="fb-actions">
           <a className="fb-btn" href={`tel:+91${f.customer_phone}`}><Phone size={13} /> {f.customer_phone}</a>
           {called
@@ -82,11 +88,11 @@ export default function Feedback() {
   if (!items) return <div className="page" style={{ color: 'var(--tx-tertiary)' }}>Loading feedback…</div>
 
   const avg = items.length ? items.reduce((s, f) => s + f.rating, 0) / items.length : 0
-  const toCall = items.filter(f => f.status !== 'called')
-  const low = items.filter(f => f.rating <= 2).length
+  const toCall = items.filter(f => f.rating < CALL_BELOW && f.status !== 'called')
+  const low = items.filter(f => f.rating < CALL_BELOW).length
   const dist = [5, 4, 3, 2, 1].map(n => ({ n, c: items.filter(f => f.rating === n).length }))
 
-  const shown = (filter === 'new' ? toCall : filter === 'called' ? items.filter(f => f.status === 'called') : items)
+  const shown = (filter === 'new' ? toCall : filter === 'called' ? items.filter(f => f.status === 'called') : filter === 'happy' ? items.filter(f => f.rating >= CALL_BELOW) : items)
     .slice().sort((a, b) => filter === 'new' ? a.rating - b.rating || new Date(b.created_at) - new Date(a.created_at) : new Date(b.created_at) - new Date(a.created_at))
 
   const onSaved = updated => setItems(list => list.map(f => f.id === updated.id ? updated : f))
@@ -113,12 +119,12 @@ export default function Feedback() {
         </div>
         <div className="fb-summary-stats">
           <div><strong className={toCall.length ? 'warn' : ''}>{toCall.length}</strong>waiting for a call</div>
-          <div><strong className={low ? 'bad' : ''}>{low}</strong>rated 1–2 stars</div>
+          <div><strong className={low ? 'bad' : ''}>{low}</strong>rated below 4 stars</div>
         </div>
       </div>
 
       <div className="fb-filters" role="tablist">
-        {[['new', `Needs a call (${toCall.length})`], ['called', 'Called'], ['all', 'All']].map(([k, l]) => (
+        {[['new', `Needs a call (${toCall.length})`], ['called', 'Called'], ['happy', '4–5 stars'], ['all', 'All']].map(([k, l]) => (
           <button key={k} role="tab" aria-selected={filter === k} className={filter === k ? 'on' : ''} onClick={() => setFilter(k)}>{l}</button>
         ))}
       </div>

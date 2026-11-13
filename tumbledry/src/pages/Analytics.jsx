@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import { useStore } from '../store/index.js'
 import { Card, Spinner } from '../components/ui/index.jsx'
-import { BarChart2, DollarSign, Lightbulb, Clock, Calendar, TrendingUp, Scissors, Tag, Trophy, AlertCircle, Moon } from 'lucide-react'
+import { BarChart2, DollarSign, Lightbulb, Clock, Calendar, TrendingUp, Scissors, Tag, Trophy, AlertCircle, Moon, Wallet, Truck, Star, Inbox } from 'lucide-react'
+import { CollectionsTab, DeliveryTab, SatisfactionTab, LeadsTab } from './AnalyticsExtra.jsx'
 import {
   Chart as ChartJS,
   CategoryScale, LinearScale, BarElement, LineElement,
@@ -49,7 +50,7 @@ function countChartOpts() {
 }
 
 export default function Analytics() {
-  const { orders, ordersLoading } = useStore()
+  const { orders, ordersLoading, leads } = useStore()
   const [tab, setTab] = useState('performance')
 
   const active = orders.filter(o => !o.deleted)
@@ -137,6 +138,10 @@ export default function Analytics() {
     { id: 'revenue',     label: 'Revenue',     icon: DollarSign  },
     { id: 'insights',    label: 'Insights',    icon: Lightbulb   },
     { id: 'heatmap',     label: 'Peak Hours',  icon: Clock       },
+    { id: 'collections', label: 'Collections', icon: Wallet      },
+    { id: 'delivery',    label: 'Delivery',    icon: Truck       },
+    { id: 'satisfaction',label: 'Satisfaction',icon: Star        },
+    { id: 'leads',       label: 'Leads',       icon: Inbox       },
   ]
 
   if (ordersLoading) return <div style={{ display:'flex', justifyContent:'center', padding:80 }}><Spinner size={40} /></div>
@@ -229,6 +234,11 @@ export default function Analytics() {
       )}
 
       {/* ── Heatmap Tab ── */}
+      {tab === 'collections'  && <CollectionsTab orders={orders} />}
+      {tab === 'delivery'     && <DeliveryTab orders={orders} />}
+      {tab === 'satisfaction' && <SatisfactionTab />}
+      {tab === 'leads'        && <LeadsTab leads={leads} />}
+
       {tab === 'heatmap' && (
         <Card>
           <div style={{ fontSize:11, fontWeight:800, textTransform:'uppercase', letterSpacing:'0.6px', color:'var(--tx-tertiary)', marginBottom:6, display:'flex', alignItems:'center', gap:5 }}><Clock size={12} /> Orders by Day & Time</div>
