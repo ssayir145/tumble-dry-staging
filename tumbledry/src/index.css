@@ -845,3 +845,35 @@ html.dark .rc-lapsed { --tone: #C3A1AA; }
 .dp-add input { padding: 9px 12px; border-radius: 8px; border: 1.5px solid var(--bd-default); background: var(--bg-input); color: var(--tx-primary); font: 400 14px var(--font-ui); }
 .dp-add input:focus { outline: none; border-color: var(--indigo); }
 .dp-inline { background: none; border: none; padding: 0; font: inherit; color: var(--indigo); text-decoration: underline; cursor: pointer; }
+
+/* ── Edit order: items editor ── */
+.eo-items { margin-top: 4px; padding: 12px 14px; border-radius: 10px; background: var(--bg-raised); border: 1px solid var(--bd-subtle); display: grid; gap: 8px; }
+.eo-items-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.eo-items-head > span:first-child { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--tx-tertiary); }
+.eo-hint { font-size: 12px; color: var(--tx-tertiary); }
+.eo-empty { font-size: 13px; color: var(--rose); }
+.eo-item { display: grid; grid-template-columns: 1fr 1fr 1fr auto auto; gap: 6px; align-items: end; padding: 8px; border-radius: 8px; background: var(--bg-card); border: 1px solid var(--bd-subtle); }
+.eo-item .eo-name { grid-column: 1 / -1; }
+.eo-item label { display: grid; gap: 2px; font-size: 10.5px; font-weight: 600; color: var(--tx-tertiary); }
+.eo-item input, .eo-add input, .eo-totals input { width: 100%; padding: 7px 9px; border-radius: 7px; border: 1.5px solid var(--bd-subtle); background: var(--bg-input); color: var(--tx-primary); font: 500 13px var(--font-ui); box-sizing: border-box; }
+.eo-item input:focus, .eo-add input:focus, .eo-totals input:focus { outline: none; border-color: var(--indigo); }
+.eo-net { padding: 0 4px 8px; font-weight: 700; font-size: 13.5px; color: var(--tx-primary); white-space: nowrap; }
+.eo-remove { width: 30px; height: 30px; margin-bottom: 2px; border-radius: 7px; border: 1px solid rgba(194, 80, 30, 0.3); background: var(--bg-card); color: var(--rose); cursor: pointer; transition: transform 0.18s var(--ease-spring); }
+.eo-remove:hover { transform: scale(1.06); background: var(--rose-dim); }
+.eo-remove:active { transform: scale(0.94); }
+.eo-remove:focus-visible { outline: 2px solid var(--indigo); outline-offset: 2px; }
+@media (min-width: 640px) {
+  .eo-item { grid-template-columns: 2fr 0.7fr 0.8fr 0.8fr auto auto; }
+  .eo-item .eo-name { grid-column: auto; align-self: end; }
+}
+.eo-add { display: flex; gap: 6px; }
+.eo-totals { display: grid; gap: 4px; padding-top: 8px; border-top: 1px dashed var(--bd-default); font-size: 13px; }
+.eo-totals label { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--tx-secondary); }
+.eo-totals label input { width: 110px; }
+.eo-totals > div { display: flex; justify-content: space-between; color: var(--tx-secondary); }
+.eo-grand { font-size: 15px; color: var(--tx-primary) !important; font-weight: 800; }
+.eo-change { display: block !important; padding: 8px 10px; border-radius: 8px; background: var(--amber-dim); color: var(--tx-primary) !important; font-size: 12.5px; }
+
+.dp-conv { font-size: 12px; font-weight: 600; color: var(--amber); }
+@media (min-width: 900px) { .dp-row:has(.dp-collected) { grid-template-columns: 1fr 210px auto auto; } }
+.eo-add .lead-btn { white-space: nowrap; }

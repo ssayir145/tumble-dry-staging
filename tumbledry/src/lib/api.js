@@ -64,6 +64,7 @@ export const api = {
     create:       (lead)                          => fetch(`${BASE}/leads`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(lead) }).then(r => r.json()),
     updateStatus: (id, status, convertedOrderId)  => request('/leads', { method: 'POST', body: JSON.stringify({ action: 'UPDATE_STATUS', id, status, convertedOrderId: convertedOrderId || null }) }),
     linkOrder:    (id, orderId)                   => request('/leads', { method: 'POST', body: JSON.stringify({ action: 'LINK_ORDER', id, orderId }) }),
+    markCollected:(id)                            => request('/leads', { method: 'POST', body: JSON.stringify({ action: 'MARK_COLLECTED', id }) }),
     remove:       (id)                            => request('/leads', { method: 'POST', body: JSON.stringify({ action: 'DELETE', id }) }),
   },
   feedback: {

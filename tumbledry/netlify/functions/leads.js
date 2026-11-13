@@ -87,6 +87,15 @@ export async function handler(event) {
       return ok({ success: true })
     }
 
+    // Clothes reached the store without a rider (walk-in) — auth required
+    if (body.action === 'MARK_COLLECTED') {
+      if (!checkAuth(event)) return err('Unauthorized', 401)
+      await sql`ALTER TABLE leads ADD COLUMN IF NOT EXISTS picked_up_at TIMESTAMPTZ`
+      await sql`ALTER TABLE leads ADD COLUMN IF NOT EXISTS picked_up_by TEXT DEFAULT ''`
+      await sql`UPDATE leads SET picked_up_at = COALESCE(picked_up_at, NOW()), picked_up_by = CASE WHEN picked_up_by = '' OR picked_up_by IS NULL THEN 'Store' ELSE picked_up_by END WHERE id = ${body.id}`
+      return ok({ success: true })
+    }
+
     // Delete a lead (e.g. converted by mistake or a duplicate) — auth required
     if (body.action === 'DELETE') {
       if (!checkAuth(event)) return err('Unauthorized', 401)

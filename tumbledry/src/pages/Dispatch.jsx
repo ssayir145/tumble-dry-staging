@@ -18,7 +18,7 @@ function RiderSelect({ riders, value, onChange, disabled, label = 'Rider' }) {
   )
 }
 
-function SendRow({ title, sub, extra, riders, onSend }) {
+function SendRow({ title, sub, extra, riders, onSend, onCollected }) {
   const [rider, setRider] = useState(null)
   const [busy, setBusy] = useState(false)
   return (
@@ -28,6 +28,7 @@ function SendRow({ title, sub, extra, riders, onSend }) {
       <button className="fb-btn fb-btn-primary" disabled={busy} onClick={async () => { setBusy(true); try { await onSend(rider) } finally { setBusy(false) } }}>
         {busy ? 'Sending…' : 'Send rider'}
       </button>
+      {onCollected && <button className="lead-btn dp-collected" onClick={() => confirm('Mark these clothes as collected at the store (no rider needed)?') && onCollected()}>Collected at store</button>}
     </div>
   )
 }
@@ -40,6 +41,7 @@ export default function Dispatch() {
   const [orderSearch, setOrderSearch] = useState('')
   const [newRider, setNewRider] = useState({ name: '', phone: '', pin: '' })
   const [riderMsg, setRiderMsg] = useState(null)
+  const [collected, setCollected] = useState(() => new Set()) // hide instantly; server is source of truth
 
   const load = useCallback(() => api.dispatch.getAll().then(d => { setData(d); setError('') }).catch(e => setError(e.message)), [])
   useEffect(() => { load() }, [load])
@@ -54,7 +56,9 @@ export default function Dispatch() {
   const busyLeads = new Set(jobs.filter(j => j.lead_id && (j.status === 'open' || j.status === 'assigned')).map(j => j.lead_id))
   const busyOrders = new Set(jobs.filter(j => j.order_id && (j.status === 'open' || j.status === 'assigned')).map(j => j.order_id))
 
-  const pickupsToSend = leads.filter(l => (l.status === 'new' || l.status === 'contacted') && !l.picked_up_at && !busyLeads.has(l.id))
+  // Every request still waiting for its clothes, including ones already converted to an order
+  const pickupsToSend = leads.filter(l => l.status !== 'cancelled' && !l.picked_up_at && !busyLeads.has(l.id) && !collected.has(l.id))
+  const tagOf = id => orders.find(o => o.id === id)?.tagNumber
   const readyOrders = useMemo(() => {
     const q = orderSearch.trim().toLowerCase()
     return orders
@@ -102,12 +106,16 @@ export default function Dispatch() {
       {tab === 'send' && (
         <>
           <section className="ax-panel">
-            <div className="ax-panel-head"><h3><PackageCheck size={14} /> Pickup requests ({pickupsToSend.length})</h3><p>New or contacted requests that no rider is on yet.</p></div>
+            <div className="ax-panel-head"><h3><PackageCheck size={14} /> Pickup requests ({pickupsToSend.length})</h3><p>Requests whose clothes haven’t been collected yet, including ones already turned into an order. Walk-in? Mark it collected at the store.</p></div>
             {pickupsToSend.length === 0 ? <div className="ax-empty">No pickups waiting.</div> : pickupsToSend.map(l => (
               <SendRow key={l.id} riders={riders}
                 title={`${l.customer_name}, ${l.service_type}`}
                 sub={`${[l.customer_address, l.landmark, l.customer_city].filter(Boolean).join(', ') || 'No address'}${l.pickup_date ? ` · pickup ${l.pickup_date}` : ''}`}
-                extra={l.location_lat != null && <span className="dp-gps"><MapPin size={11} /> GPS</span>}
+                extra={<>
+                  {l.location_lat != null && <span className="dp-gps"><MapPin size={11} /> GPS</span>}
+                  {l.status === 'converted' && <span className="dp-conv">Order already created{l.converted_order_id && tagOf(l.converted_order_id) ? `, tag ${tagOf(l.converted_order_id)}` : ''}. Clothes still to collect.</span>}
+                </>}
+                onCollected={() => act(async () => { await api.leads.markCollected(l.id); setCollected(s => new Set(s).add(l.id)) }, [fetchLeads])}
                 onSend={riderId => act(() => api.dispatch.createJob({ type: 'pickup', leadId: l.id, riderId }), [fetchLeads])} />
             ))}
           </section>
