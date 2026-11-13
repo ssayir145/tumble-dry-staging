@@ -1,9 +1,10 @@
 // src/pages/CustomerBooking.jsx — Posh public website + pickup booking
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api, getValidToken, CUSTOMER_TOKEN_KEY } from '../lib/api.js'
 import { GARMENT_RATES, SERVICE_KG_RATES } from '../lib/garments.js'
+import { Account } from './MyOrders.jsx'
 import './customer-site.css'
 
 const PHONE = '8899912859'
@@ -47,7 +48,16 @@ const todayISO = () => new Date().toISOString().split('T')[0]
 
 export default function CustomerBooking() {
   const navigate = useNavigate()
-  const loggedIn = !!getValidToken(localStorage, CUSTOMER_TOKEN_KEY)
+  const [token, setToken] = useState(() => getValidToken(localStorage, CUSTOMER_TOKEN_KEY))
+  const loggedIn = !!token
+  const [section, setSection] = useState('orders')
+  // Arriving here after logging in keeps the old scroll position; start at the top (account first)
+  useEffect(() => { if (!window.location.hash) window.scrollTo(0, 0) }, [])
+  const goToAccount = s => { setSection(s); requestAnimationFrame(() => document.getElementById('me')?.scrollIntoView({ behavior: 'smooth', block: 'start' })) }
+  // Logged-in customers book from their account (prefilled, saved address + GPS); visitors use the form below
+  const bookLink = loggedIn
+    ? { href: '#me', onClick: e => { e.preventDefault(); goToAccount('book') } }
+    : { href: '#book' }
   const [form, setForm] = useState({ customerName: '', customerNumber: '', customerCity: '', pickupDate: '', serviceType: 'Dry Clean', garmentCount: 1, notes: '' })
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
@@ -109,11 +119,22 @@ export default function CustomerBooking() {
             <a href="#how">How it works</a>
           </nav>
           <div className="ps-header-actions">
-            <a className="ps-btn ps-btn-ghost" href="/account" onClick={e => { e.preventDefault(); navigate('/account') }}>{loggedIn ? 'My account' : 'Log in'}</a>
-            <a className="ps-btn ps-btn-primary ps-hide-sm" href="#book">Book a pickup</a>
+            {loggedIn
+              ? <a className="ps-btn ps-btn-ghost" href="#me" onClick={e => { e.preventDefault(); goToAccount('orders') }}>My account</a>
+              : <a className="ps-btn ps-btn-ghost" href="/account" onClick={e => { e.preventDefault(); navigate('/account') }}>Log in</a>}
+            <a className="ps-btn ps-btn-primary ps-hide-sm" {...bookLink}>Book a pickup</a>
           </div>
         </div>
       </header>
+
+      {loggedIn && (
+        <section className="ps-me" id="me" aria-label="Your account">
+          <div className="ps-wrap">
+            <Account token={token} section={section} setSection={setSection}
+              onLogOut={() => { localStorage.removeItem(CUSTOMER_TOKEN_KEY); setToken(null); window.scrollTo(0, 0) }} />
+          </div>
+        </section>
+      )}
 
       <main id="top">
         {/* Hero */}
@@ -127,12 +148,14 @@ export default function CustomerBooking() {
                 with that same tenderness, whether it’s a school shirt or your mother’s pashmina.
               </p>
               <div className="ps-hero-ctas">
-                <a className="ps-btn ps-btn-primary" href="#book">Book a free pickup</a>
+                <a className="ps-btn ps-btn-primary" {...bookLink}>Book a free pickup</a>
                 <a className="ps-btn ps-btn-ghost" href="#services">See prices</a>
               </div>
-              <p className="ps-hero-returning">
-                Already a customer? <a className="ps-link" href="/account" onClick={e => { e.preventDefault(); navigate('/account') }}>Log in to track your orders</a>
-              </p>
+              {!loggedIn && (
+                <p className="ps-hero-returning">
+                  Already a customer? <a className="ps-link" href="/account" onClick={e => { e.preventDefault(); navigate('/account') }}>Log in to track your orders</a>
+                </p>
+              )}
               <div className="ps-hero-meta">
                 <div><strong>9,000+</strong>garments cleaned</div>
                 <div><strong>700+</strong>families in Srinagar</div>
@@ -192,7 +215,7 @@ export default function CustomerBooking() {
             <div>
               <h2 id="winter-h">Ready before Chillai Kalan.</h2>
               <p>The forty coldest days are coming. Send us your blankets, quilts and long coats now, and they’ll be fresh and warm when the valley turns white.</p>
-              <div className="ps-hero-ctas"><a className="ps-btn ps-btn-light" href="#book">Book a winter pickup</a></div>
+              <div className="ps-hero-ctas"><a className="ps-btn ps-btn-light" {...bookLink}>Book a winter pickup</a></div>
             </div>
             <div className="ps-winter-list">
               {WINTER.map(([n, p]) => <div key={n}><span>{n}</span><b>₹{p}</b></div>)}
@@ -228,46 +251,54 @@ export default function CustomerBooking() {
               </dl>
             </div>
 
-            <form className="ps-form" onSubmit={handleSubmit} noValidate>
-              <h3>Book a pickup</h3>
-              <p>We’ll call you to confirm the time.</p>
-              {error && <div className="ps-error" role="alert">{error}</div>}
-              <div className="ps-field-group">
-                <label className="ps-label" htmlFor="b-name">Your name</label>
-                <input id="b-name" className="ps-field" autoComplete="name" value={form.customerName} onChange={e => setField('customerName', e.target.value)} />
+            {loggedIn ? (
+              <div className="ps-form ps-form-loggedin">
+                <h3>You’re logged in</h3>
+                <p>Book from your account and we’ll use your saved address and location, so our rider comes straight to your door.</p>
+                <button className="ps-btn ps-btn-primary" onClick={() => goToAccount('book')}>Book a pickup</button>
               </div>
-              <div className="ps-row">
+            ) : (
+              <form className="ps-form" onSubmit={handleSubmit} noValidate>
+                <h3>Book a pickup</h3>
+                <p>We’ll call you to confirm the time.</p>
+                {error && <div className="ps-error" role="alert">{error}</div>}
                 <div className="ps-field-group">
-                  <label className="ps-label" htmlFor="b-phone">Mobile number</label>
-                  <input id="b-phone" className="ps-field" inputMode="numeric" autoComplete="tel" placeholder="10 digits" value={form.customerNumber} onChange={e => setField('customerNumber', e.target.value)} />
+                  <label className="ps-label" htmlFor="b-name">Your name</label>
+                  <input id="b-name" className="ps-field" autoComplete="name" value={form.customerName} onChange={e => setField('customerName', e.target.value)} />
+                </div>
+                <div className="ps-row">
+                  <div className="ps-field-group">
+                    <label className="ps-label" htmlFor="b-phone">Mobile number</label>
+                    <input id="b-phone" className="ps-field" inputMode="numeric" autoComplete="tel" placeholder="10 digits" value={form.customerNumber} onChange={e => setField('customerNumber', e.target.value)} />
+                  </div>
+                  <div className="ps-field-group">
+                    <label className="ps-label" htmlFor="b-date">Pickup date</label>
+                    <input id="b-date" type="date" className="ps-field" min={todayISO()} value={form.pickupDate} onChange={e => setField('pickupDate', e.target.value)} />
+                  </div>
                 </div>
                 <div className="ps-field-group">
-                  <label className="ps-label" htmlFor="b-date">Pickup date</label>
-                  <input id="b-date" type="date" className="ps-field" min={todayISO()} value={form.pickupDate} onChange={e => setField('pickupDate', e.target.value)} />
+                  <label className="ps-label" htmlFor="b-area">Area <span>(optional)</span></label>
+                  <input id="b-area" className="ps-field" placeholder="e.g. Hazratbal, Nishat, Rajbagh" value={form.customerCity} onChange={e => setField('customerCity', e.target.value)} />
                 </div>
-              </div>
-              <div className="ps-field-group">
-                <label className="ps-label" htmlFor="b-area">Area <span>(optional)</span></label>
-                <input id="b-area" className="ps-field" placeholder="e.g. Hazratbal, Nishat, Rajbagh" value={form.customerCity} onChange={e => setField('customerCity', e.target.value)} />
-              </div>
-              <div className="ps-row">
+                <div className="ps-row">
+                  <div className="ps-field-group">
+                    <label className="ps-label" htmlFor="b-svc">Service</label>
+                    <select id="b-svc" className="ps-field" value={form.serviceType} onChange={e => setField('serviceType', e.target.value)}>
+                      {BOOK_SERVICES.map(s => <option key={s}>{s}</option>)}
+                    </select>
+                  </div>
+                  <div className="ps-field-group">
+                    <label className="ps-label" htmlFor="b-count">Number of pieces</label>
+                    <input id="b-count" type="number" min="1" className="ps-field" value={form.garmentCount} onChange={e => setField('garmentCount', e.target.value)} />
+                  </div>
+                </div>
                 <div className="ps-field-group">
-                  <label className="ps-label" htmlFor="b-svc">Service</label>
-                  <select id="b-svc" className="ps-field" value={form.serviceType} onChange={e => setField('serviceType', e.target.value)}>
-                    {BOOK_SERVICES.map(s => <option key={s}>{s}</option>)}
-                  </select>
+                  <label className="ps-label" htmlFor="b-notes">Anything we should know? <span>(optional)</span></label>
+                  <textarea id="b-notes" className="ps-field" placeholder="Stains, delicate fabrics, a good time to call" value={form.notes} onChange={e => setField('notes', e.target.value)} />
                 </div>
-                <div className="ps-field-group">
-                  <label className="ps-label" htmlFor="b-count">Number of pieces</label>
-                  <input id="b-count" type="number" min="1" className="ps-field" value={form.garmentCount} onChange={e => setField('garmentCount', e.target.value)} />
-                </div>
-              </div>
-              <div className="ps-field-group">
-                <label className="ps-label" htmlFor="b-notes">Anything we should know? <span>(optional)</span></label>
-                <textarea id="b-notes" className="ps-field" placeholder="Stains, delicate fabrics, a good time to call" value={form.notes} onChange={e => setField('notes', e.target.value)} />
-              </div>
-              <button className="ps-btn ps-btn-primary" type="submit" disabled={submitting}>{submitting ? 'Booking…' : 'Request pickup'}</button>
-            </form>
+                <button className="ps-btn ps-btn-primary" type="submit" disabled={submitting}>{submitting ? 'Booking…' : 'Request pickup'}</button>
+              </form>
+            )}
           </div>
         </section>
       </main>

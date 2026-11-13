@@ -351,3 +351,11 @@ textarea.ps-field { resize: vertical; min-height: 92px; }
 .ps-loc-btn { width: 100%; }
 .ps-book-inline { max-width: 640px; }
 .ps-book-inline .ps-btn[type=submit] { width: 100%; }
+
+/* ── Account on the landing page ── */
+.ps-me { position: relative; padding: var(--ps-space-4) 0 var(--ps-space-5); background: linear-gradient(180deg, rgba(244,235,224,0.75), rgba(251,246,236,0)); border-bottom: 1px solid rgba(130,34,66,0.08); scroll-margin-top: 72px; }
+.ps-me .ps-account { max-width: none; }
+.ps-me .ps-account-head h1 { font-size: clamp(36px, 6vw, 54px); }
+.ps-form-loggedin { display: grid; gap: var(--ps-space-2); align-content: start; }
+.ps-form-loggedin p { color: #5A3A43; }
+.ps-form-loggedin .ps-btn { width: 100%; }

@@ -172,23 +172,34 @@ export async function handler(event) {
     if (!validPin(body.pin)) return err('Your PIN must be 4 to 6 digits')
 
     // ── First-time PIN setup ────────────────────────────────────
+    // Numbers with past orders must prove ownership with a receipt tag (protects order history).
+    // Brand-new numbers (no orders yet) sign up with name + PIN only.
     if (body.action === 'SETUP') {
       const tag = String(body.tag || '').trim()
-      if (!tag) return err('Enter a tag number from one of your receipts')
+      const givenName = String(body.name || '').trim().slice(0, 80)
 
       const existing = await sql`SELECT phone FROM customer_accounts WHERE phone = ${phone}`
-      if (existing.length) return err('This number already has a PIN. Sign in, or ask the store to reset it.', 409)
+      if (existing.length) return err('This number already has an account. Log in, or ask the store to reset your PIN.', 409)
 
-      const match = await sql`
+      const past = await sql`
         SELECT 1 FROM orders
-        WHERE right(regexp_replace(regexp_replace(customer_number, '[.]0+$', ''), '[^0-9]', '', 'g'), 10) = ${phone} AND deleted = false AND upper(trim(tag_number)) = upper(${tag})
-        LIMIT 1
-      `
-      // Same delay whether or not it matched, to slow down guessing
-      await new Promise(r => setTimeout(r, 500))
-      if (!match.length) return err('That tag number doesn’t match an order for this phone. Check your receipt and try again.', 404)
+        WHERE right(regexp_replace(regexp_replace(customer_number, '[.]0+$', ''), '[^0-9]', '', 'g'), 10) = ${phone} AND deleted = false
+        LIMIT 1`
 
-      const name = await latestName(sql, phone)
+      if (past.length) {
+        if (!tag) return ok({ needTag: true })
+        const match = await sql`
+          SELECT 1 FROM orders
+          WHERE right(regexp_replace(regexp_replace(customer_number, '[.]0+$', ''), '[^0-9]', '', 'g'), 10) = ${phone} AND deleted = false AND upper(trim(tag_number)) = upper(${tag})
+          LIMIT 1`
+        // Same delay whether or not it matched, to slow down guessing
+        await new Promise(r => setTimeout(r, 500))
+        if (!match.length) return err('That tag number doesn’t match an order for this phone. Check your receipt and try again.', 404)
+      } else if (!givenName) {
+        return err('Add your name so we know who to ask for.')
+      }
+
+      const name = (await latestName(sql, phone)) || givenName
       await sql`INSERT INTO customer_accounts (phone, pin_hash, name, last_login) VALUES (${phone}, ${hashPin(body.pin)}, ${name}, NOW())`
       return ok({ token: signToken({ role: 'customer', phone, name }, SESSION_DAYS * 86400), name })
     }

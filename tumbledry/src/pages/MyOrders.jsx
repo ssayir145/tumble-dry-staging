@@ -1,7 +1,7 @@
 // src/pages/MyOrders.jsx — customer login (phone + PIN) and account area: orders, pickups, profile
 
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { api, getValidToken, CUSTOMER_TOKEN_KEY } from '../lib/api.js'
 import './customer-site.css'
 
@@ -47,7 +47,9 @@ function Header({ signedIn, onBook }) {
 function LoginPage({ onLoggedIn }) {
   const [mode, setMode] = useState('login') // login | create
   const [phone, setPhone] = useState('')
+  const [name, setName] = useState('')
   const [tag, setTag] = useState('')
+  const [needTag, setNeedTag] = useState(false) // only when this number already has orders
   const [pin, setPin] = useState('')
   const [pin2, setPin2] = useState('')
   const [error, setError] = useState('')
@@ -59,14 +61,16 @@ function LoginPage({ onLoggedIn }) {
     if (digits(phone).length < 10) return setError('Enter your 10-digit mobile number.')
     if (!/^\d{4,6}$/.test(pin)) return setError('Your PIN must be 4 to 6 digits.')
     if (mode === 'create') {
-      if (!tag.trim()) return setError('Enter a tag number from one of your receipts, for example P1010.')
       if (pin !== pin2) return setError('The two PINs don’t match. Type them again.')
+      if (needTag && !tag.trim()) return setError('Enter the tag number from any of your receipts, for example P1010.')
+      if (!needTag && !name.trim()) return setError('Add your name so we know who to ask for.')
     }
     setBusy(true)
     try {
       const res = mode === 'create'
-        ? await api.customer.setup(digits(phone), tag.trim(), pin)
+        ? await api.customer.setup(digits(phone), needTag ? tag.trim() : '', pin, name.trim())
         : await api.customer.signIn(digits(phone), pin)
+      if (res.needTag) { setNeedTag(true); return }
       localStorage.setItem(CUSTOMER_TOKEN_KEY, res.token)
       onLoggedIn(res.token)
     } catch (e2) {
@@ -74,7 +78,7 @@ function LoginPage({ onLoggedIn }) {
     } finally { setBusy(false) }
   }
 
-  const switchTo = m => { setMode(m); setError(''); setPin(''); setPin2('') }
+  const switchTo = m => { setMode(m); setError(''); setPin(''); setPin2(''); setNeedTag(false); setTag('') }
 
   return (
     <div className="ps-account-auth">
@@ -83,7 +87,7 @@ function LoginPage({ onLoggedIn }) {
         <h1 className="ps-display">{mode === 'create' ? 'Create your account.' : 'Welcome back.'}</h1>
         <p>
           {mode === 'create'
-            ? 'Use the mobile number you give at the store and the tag number printed on any of your receipts. That’s how we know the orders are yours.'
+            ? 'Takes a minute. Book pickups, track your clothes and see your bills, all in one place.'
             : 'Log in to see what’s being cleaned, what’s ready to collect, and what you owe.'}
         </p>
         <ul className="ps-login-perks">
@@ -99,14 +103,21 @@ function LoginPage({ onLoggedIn }) {
           <button type="button" role="tab" aria-selected={mode === 'create'} className={mode === 'create' ? 'on' : ''} onClick={() => switchTo('create')}>New here?</button>
         </div>
         {error && <div className="ps-error" role="alert">{error}</div>}
+        {mode === 'create' && !needTag && (
+          <div className="ps-field-group">
+            <label className="ps-label" htmlFor="a-name">Your name</label>
+            <input id="a-name" className="ps-field" autoComplete="name" value={name} onChange={e => setName(e.target.value)} />
+          </div>
+        )}
         <div className="ps-field-group">
           <label className="ps-label" htmlFor="a-phone">Mobile number</label>
-          <input id="a-phone" className="ps-field" inputMode="numeric" autoComplete="tel" placeholder="10 digits" value={phone} onChange={e => setPhone(e.target.value)} />
+          <input id="a-phone" className="ps-field" inputMode="numeric" autoComplete="tel" placeholder="10 digits" value={phone} onChange={e => { setPhone(e.target.value); setNeedTag(false) }} />
         </div>
-        {mode === 'create' && (
+        {mode === 'create' && needTag && (
           <div className="ps-field-group">
+            <div className="ps-success-msg" role="status">Welcome back! This number already has orders with us. To keep them private, enter the tag number from any of your receipts.</div>
             <label className="ps-label" htmlFor="a-tag">Tag number from a receipt</label>
-            <input id="a-tag" className="ps-field" autoCapitalize="characters" placeholder="e.g. P1010" value={tag} onChange={e => setTag(e.target.value)} />
+            <input id="a-tag" className="ps-field" autoCapitalize="characters" placeholder="e.g. P1010" autoFocus value={tag} onChange={e => setTag(e.target.value)} />
           </div>
         )}
         <div className={mode === 'create' ? 'ps-row' : ''}>
@@ -512,7 +523,7 @@ function ProfileSection({ token, name, phone, address, onAddressSaved, onLogOut 
 }
 
 /* ── Account shell ──────────────────────────────────────────── */
-function Account({ token, onLogOut, section, setSection }) {
+export function Account({ token, onLogOut, section, setSection }) {
   const [data, setData] = useState(null)
   const [error, setError] = useState('')
   const [flash, setFlash] = useState('')
@@ -575,15 +586,16 @@ function Account({ token, onLogOut, section, setSection }) {
   )
 }
 
+// /account is the login page. Once logged in, customers use the full site with their account on top.
 export default function MyOrders() {
-  const [token, setToken] = useState(() => getValidToken(localStorage, CUSTOMER_TOKEN_KEY))
-  const [section, setSection] = useState(() => (window.location.hash === '#book' ? 'book' : 'orders'))
-  const logOut = () => { localStorage.removeItem(CUSTOMER_TOKEN_KEY); setToken(null) }
+  const navigate = useNavigate()
+  const loggedIn = !!getValidToken(localStorage, CUSTOMER_TOKEN_KEY)
+  if (loggedIn) return <Navigate to="/" replace />
   return (
     <div className="ps">
-      <Header signedIn={!!token} onBook={() => setSection('book')} />
+      <Header signedIn={false} />
       <main className="ps-wrap ps-account-main">
-        {token ? <Account token={token} onLogOut={logOut} section={section} setSection={setSection} /> : <LoginPage onLoggedIn={setToken} />}
+        <LoginPage onLoggedIn={() => navigate('/', { replace: true })} />
       </main>
     </div>
   )

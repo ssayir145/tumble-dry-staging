@@ -71,7 +71,7 @@ export const api = {
     saveNotes:  (id, notes) => request('/feedback', { method: 'POST', body: JSON.stringify({ action: 'UPDATE_NOTES', id, notes }) }),
   },
   customer: {
-    setup:    (phone, tag, pin) => call('/customer', { method: 'POST', body: JSON.stringify({ action: 'SETUP', phone, tag, pin }) }),
+    setup:    (phone, tag, pin, name) => call('/customer', { method: 'POST', body: JSON.stringify({ action: 'SETUP', phone, tag, pin, name }) }),
     signIn:   (phone, pin)      => call('/customer', { method: 'POST', body: JSON.stringify({ action: 'LOGIN', phone, pin }) }),
     myOrders: (token)           => call('/customer', { token }),
     saveAddress: (token, a) => call('/customer', { token, method: 'POST', body: JSON.stringify({ action: 'SAVE_ADDRESS', ...a }) }),
