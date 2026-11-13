@@ -106,9 +106,11 @@ export default function CustomerBooking() {
             <a href="#kashmir">Kashmiri wear</a>
             <a href="#services">Services</a>
             <a href="#how">How it works</a>
-            <a href="/account" onClick={e => { e.preventDefault(); navigate('/account') }}>My orders</a>
           </nav>
-          <a className="ps-btn ps-btn-primary" href="#book">Book a pickup</a>
+          <div className="ps-header-actions">
+            <a className="ps-btn ps-btn-ghost" href="/account" onClick={e => { e.preventDefault(); navigate('/account') }}>My orders</a>
+            <a className="ps-btn ps-btn-primary ps-hide-sm" href="#book">Book a pickup</a>
+          </div>
         </div>
       </header>
 
@@ -127,6 +129,9 @@ export default function CustomerBooking() {
                 <a className="ps-btn ps-btn-primary" href="#book">Book a free pickup</a>
                 <a className="ps-btn ps-btn-ghost" href="#services">See prices</a>
               </div>
+              <p className="ps-hero-returning">
+                Already a customer? <a className="ps-link" href="/account" onClick={e => { e.preventDefault(); navigate('/account') }}>Track your orders</a>
+              </p>
               <div className="ps-hero-meta">
                 <div><strong>9,000+</strong>garments cleaned</div>
                 <div><strong>700+</strong>families in Srinagar</div>
