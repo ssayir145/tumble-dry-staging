@@ -546,19 +546,22 @@ export function Account({ token, onLogOut, section, setSection }) {
   const SECTIONS = [
     { key: 'orders',  label: 'Orders',  count: data.orders.length },
     { key: 'pickups', label: 'Pickups', count: data.bookings?.length || 0 },
-    { key: 'book',    label: 'Book a pickup' },
+    { key: 'book',    label: 'Book' },
     { key: 'profile', label: 'Profile' },
   ]
 
   return (
     <div className="ps-account">
       <div className="ps-account-head">
-        <h1 className="ps-display">{firstName ? `Salaam, ${firstName}.` : 'Your account.'}</h1>
-        <p>
-          {ready.length > 0
-            ? `${plural(ready.length, 'order is', 'orders are')} ready to collect.`
-            : active.length > 0 ? `${plural(active.length, 'order', 'orders')} in progress.` : 'Nothing in progress right now.'}
-        </p>
+        <div>
+          <h1 className="ps-display">{firstName ? `Salaam, ${firstName}.` : 'Your account.'}</h1>
+          <p>
+            {ready.length > 0
+              ? `${plural(ready.length, 'order is', 'orders are')} ready to collect.`
+              : active.length > 0 ? `${plural(active.length, 'order', 'orders')} in progress.` : 'Nothing in progress right now.'}
+          </p>
+        </div>
+        <button className="ps-btn ps-btn-ghost ps-logout-top" onClick={onLogOut}>Log out</button>
       </div>
 
       <div className="ps-summary">
