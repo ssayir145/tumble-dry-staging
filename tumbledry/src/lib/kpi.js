@@ -10,7 +10,7 @@ export function deliveryDeadline(str) {
   return isNaN(d) || m === undefined || isNaN(y) ? null : new Date(y, m, d, 23, 59, 59)
 }
 
-export const STAGE_LABEL = { wash: 'Washing', press: 'Pressing', pack: 'Packing', delivery: 'Delivery', pickup: 'Pickup', waiting: 'Waiting before work started', untracked: 'Not tracked in /work' }
+export const STAGE_LABEL = { wash: 'Washing', press: 'Pressing', pack: 'Packing', delivery: 'Delivery', pickup: 'Pickup', waiting: 'Waiting, not started', untracked: 'Not tracked in /work' }
 
 function status(pct, issues, targets) {
   if (pct === null) return 'none'
@@ -88,7 +88,11 @@ export function lateCauses({ orders, stages, jobs, targets }, from, to) {
   })
   const rows = late.map(o => {
     const st = stages.filter(s => s.order_id === o.id)
-    if (!st.length) return { order: o, cause: 'untracked', overBy: null }
+    // No stage records: still in the workshop means nobody started it; finished means it skipped /work
+    if (!st.length) {
+      const waiting = o.status === 'pending' || o.status === 'inprocess'
+      return { order: o, cause: waiting ? 'waiting' : 'untracked', overBy: waiting ? (now - deliveryDeadline(o.delivery_date)) / H : null }
+    }
     let worst = null
     st.forEach(s => {
       const taken = s.hours_taken ?? (now - new Date(s.reached_at)) / H

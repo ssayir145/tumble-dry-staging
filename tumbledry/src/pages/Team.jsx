@@ -187,7 +187,7 @@ export default function Team() {
                     <span><b>{r.order.tag_number}</b><small>{r.order.customer_name}</small></span>
                     <span>Due {r.order.delivery_date}</span>
                     <span>{STAGE_LABEL[r.cause]}{r.who ? ` (${r.who.split(' ')[0]})` : ''}</span>
-                    <b className="ax-bad">{r.overBy ? `${fmtHours(r.overBy)} over` : ''}</b>
+                    <b className="ax-bad">{r.overBy ? `${fmtHours(r.overBy)} ${r.cause === 'waiting' ? 'past due' : 'over'}` : ''}</b>
                   </div>
                 ))}
               </div>
