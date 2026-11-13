@@ -87,6 +87,7 @@ export const api = {
   },
   work: {
     board:  ()                      => request('/work'),
+    saveTargets: (targets)          => request('/work', { method: 'POST', body: JSON.stringify({ action: 'SAVE_TARGETS', targets }) }),
     queue:  (token)                 => call('/work', { token }),
     act:    (token, action, extra)  => call('/work', { token, method: 'POST', body: JSON.stringify({ action, ...extra }) }),
   },

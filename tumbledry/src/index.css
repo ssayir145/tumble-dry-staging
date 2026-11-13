@@ -899,3 +899,40 @@ html.dark .rc-lapsed { --tone: #C3A1AA; }
   .tm-row > :nth-child(3), .tm-row > :nth-child(5), .tm-row > :nth-child(6) { display: none; }
   .tm-row > :nth-child(2) { display: block; }
 }
+
+/* ── Team phase 2: scorecards, risk, targets ── */
+.tm-risk { border-color: rgba(194, 80, 30, 0.35); }
+.tm-risk-row { grid-template-columns: 1.3fr 1.1fr 0.8fr 1.4fr; }
+.tm-col li.risk { background: var(--rose-dim); }
+.tm-col li.risk b { color: var(--rose); }
+.tm-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+.tm-cards { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); margin-bottom: 14px; }
+.tm-card { --tone: var(--tx-tertiary); padding: 16px; border-radius: 14px; background: var(--bg-card); border: 1px solid var(--bd-subtle); border-top: 4px solid var(--tone); box-shadow: var(--shadow-sm); display: grid; gap: 12px; }
+.tm-card.tm-green { --tone: var(--emerald); }
+.tm-card.tm-amber { --tone: var(--amber); }
+.tm-card.tm-red { --tone: var(--rose); }
+.tm-card header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.tm-card header b { display: block; font-size: 15px; color: var(--tx-primary); }
+.tm-card header small { font-size: 12px; color: var(--tx-tertiary); }
+.tm-pill { padding: 3px 10px; border-radius: 99px; font-size: 11.5px; font-weight: 600; color: var(--tone); background: var(--bg-raised); white-space: nowrap; }
+.tm-big { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.tm-big strong { font-size: 40px; font-weight: 500; letter-spacing: -0.03em; line-height: 1; color: var(--tone); font-variant-numeric: tabular-nums; }
+.tm-big span { font-size: 13px; color: var(--tx-secondary); }
+.tm-big em { display: inline-flex; align-items: center; gap: 3px; font-style: normal; font-size: 12px; font-weight: 600; }
+.tm-big em.up { color: var(--emerald); }
+.tm-big em.down { color: var(--rose); }
+.tm-card dl { display: grid; gap: 4px; padding-top: 10px; border-top: 1px dashed var(--bd-subtle); }
+.tm-card dl div { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; }
+.tm-card dt { color: var(--tx-tertiary); }
+.tm-card dd { color: var(--tx-primary); font-weight: 500; text-align: right; }
+.tm-card dd.bad { color: var(--rose); }
+.tm-targets { display: grid; gap: 10px; padding: 0 16px 16px; }
+@media (min-width: 900px) { .tm-targets { grid-template-columns: repeat(2, 1fr); column-gap: 28px; } }
+.tm-targets label { display: grid; grid-template-columns: 1fr 90px; grid-template-rows: auto auto; column-gap: 10px; align-items: center; padding: 10px 12px; border-radius: 10px; background: var(--bg-raised); }
+.tm-targets label span { font-size: 13.5px; font-weight: 600; color: var(--tx-primary); }
+.tm-targets label small { grid-column: 1; font-size: 12px; color: var(--tx-tertiary); }
+.tm-targets label input { grid-row: 1 / 3; grid-column: 2; padding: 8px 10px; border-radius: 8px; border: 1.5px solid var(--bd-default); background: var(--bg-input); color: var(--tx-primary); font: 600 15px var(--font-ui); text-align: center; }
+.tm-targets label input:focus { outline: none; border-color: var(--indigo); }
+.tm-targets-foot { display: flex; justify-content: flex-end; align-items: center; gap: 12px; grid-column: 1 / -1; }
+.tm-ok { color: var(--emerald); font-weight: 600; font-size: 13px; }
+@media (max-width: 640px) { .tm-risk-row { grid-template-columns: 1fr; } }

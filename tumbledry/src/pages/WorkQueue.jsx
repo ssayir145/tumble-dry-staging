@@ -74,6 +74,11 @@ export default function WorkQueue({ token, onLogOut }) {
         <div>
           <h1 className="ps-display">Salaam, {data.me.name.split(' ')[0]}.</h1>
           <p>{data.todo.length} waiting · {data.inProgress.length} with you · {data.doneToday.length} done today</p>
+          {data.myKpi?.done > 0 && (
+            <p className={`wq-score ${data.myKpi.onTime / data.myKpi.done >= 0.9 ? 'good' : data.myKpi.onTime / data.myKpi.done >= 0.75 ? 'ok' : 'low'}`}>
+              This week: {data.myKpi.onTime} of {data.myKpi.done} on time ({Math.round(data.myKpi.onTime / data.myKpi.done * 100)}%). Target {data.myKpi.targetHours} h.
+            </p>
+          )}
         </div>
         <button className="rd-link" onClick={onLogOut}>Log out</button>
       </div>

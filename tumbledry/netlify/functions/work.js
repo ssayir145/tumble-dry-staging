@@ -31,6 +31,50 @@ async function ensureTables(sql) {
       note        TEXT DEFAULT ''
     )`
   await sql`CREATE INDEX IF NOT EXISTS idx_order_stages_order ON order_stages(order_id)`
+  await sql`CREATE TABLE IF NOT EXISTS kpi_settings (key TEXT PRIMARY KEY, value JSONB NOT NULL, updated_at TIMESTAMPTZ DEFAULT NOW())`
+}
+
+// ── Phase 2: targets + per-stage timing ─────────────────────────
+export const DEFAULT_TARGETS = { wash_hours: 24, press_hours: 24, pack_hours: 6, delivery_hours: 24, pickup_hours: 24, green_pct: 90, amber_pct: 75 }
+
+async function getTargets(sql) {
+  const row = (await sql`SELECT value FROM kpi_settings WHERE key = 'targets'`)[0]
+  return { ...DEFAULT_TARGETS, ...(row?.value || {}) }
+}
+
+// Every stage row with when the order reached that worker, the target, and whether it was on time.
+// Fairness: each worker is timed from when the order reached them, not from when the order came in.
+async function stageTimings(sql, days, targets) {
+  const rows = await sql`
+    SELECT s.*, o.order_date, o.service_type, o.delivery_date
+    FROM order_stages s JOIN orders o ON o.id = s.order_id
+    WHERE s.order_id IN (SELECT DISTINCT order_id FROM order_stages WHERE started_at > NOW() - make_interval(days => ${days}))
+    ORDER BY s.started_at`
+  const byOrder = {}
+  rows.forEach(r => (byOrder[r.order_id] ||= []).push(r))
+  const out = []
+  for (const list of Object.values(byOrder)) {
+    list.forEach((s, i) => {
+      const before = list.slice(0, i)
+      let reached
+      if (s.stage === 'wash') {
+        const prevWash = before.filter(b => b.stage === 'wash').pop()
+        reached = prevWash ? (prevWash.finished_at || prevWash.started_at) : s.order_date
+      } else {
+        const wash = before.filter(b => b.stage === 'wash' && b.finished_at && !b.sent_back).pop()
+        reached = wash ? wash.finished_at : s.order_date
+      }
+      const target = s.stage === 'wash' ? targets.wash_hours : s.stage === 'pack' ? targets.pack_hours : targets.press_hours
+      const hoursTaken = s.finished_at ? (new Date(s.finished_at) - new Date(reached)) / 3600000 : null
+      out.push({
+        id: s.id, order_id: s.order_id, tag_number: s.tag_number, stage: s.stage, worker_id: s.worker_id, worker_name: s.worker_name,
+        pieces: s.pieces, started_at: s.started_at, finished_at: s.finished_at, sent_back: s.sent_back, note: s.note,
+        reached_at: reached, target_hours: target, hours_taken: hoursTaken,
+        on_time: hoursTaken !== null ? hoursTaken <= target : null,
+      })
+    })
+  }
+  return out.filter(r => new Date(r.started_at) > new Date(Date.now() - days * 86400000))
 }
 
 // Where each recent order is in the workshop
@@ -75,11 +119,32 @@ export async function handler(event) {
   try {
     // ── Staff board ───────────────────────────────────────────
     if (checkAuth(event)) {
-      if (event.httpMethod !== 'GET') return err('Method not allowed', 405)
+      if (event.httpMethod === 'POST') {
+        let body
+        try { body = JSON.parse(event.body || '{}') } catch { return err('Invalid request') }
+        if (body.action !== 'SAVE_TARGETS') return err('Unknown action')
+        const t = {}
+        for (const [k, def] of Object.entries(DEFAULT_TARGETS)) {
+          const v = Number(body.targets?.[k])
+          t[k] = Number.isFinite(v) && v > 0 && v <= (k.endsWith('_pct') ? 100 : 240) ? v : def
+        }
+        if (t.amber_pct >= t.green_pct) return err('The amber mark must be lower than the green mark')
+        await sql`INSERT INTO kpi_settings (key, value, updated_at) VALUES ('targets', ${JSON.stringify(t)}, NOW())
+                  ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()`
+        return ok({ targets: t })
+      }
+      const targets = await getTargets(sql)
       const workers = await sql`SELECT id, name, phone, active, role FROM riders ORDER BY active DESC, role, name`
-      const stages = await sql`SELECT * FROM order_stages WHERE started_at > NOW() - INTERVAL '30 days' ORDER BY started_at DESC LIMIT 3000`
+      const stages = await stageTimings(sql, 60, targets)
       const board = await workshopState(sql)
-      return ok({ workers, stages, board })
+      let jobs = []
+      try { jobs = await sql`SELECT id, type, rider_id, status, tag_number, customer_name, created_at, assigned_at, completed_at, outcome_note FROM rider_jobs WHERE created_at > NOW() - INTERVAL '60 days'` } catch { /* no rider jobs yet */ }
+      // Orders that became Ready or are still in the workshop, for late-cause analysis
+      const orders = await sql`
+        SELECT id, tag_number, customer_name, status, order_date, delivery_date, ready_at, delivered_at
+        FROM orders WHERE deleted = false AND (ready_at > NOW() - INTERVAL '60 days'
+          OR (status IN ('pending', 'inprocess') AND order_date > NOW() - make_interval(days => ${WINDOW_DAYS})))`
+      return ok({ workers, stages, board, targets, jobs, orders })
     }
 
     // ── Worker ─────────────────────────────────────────────────
@@ -100,7 +165,11 @@ export async function handler(event) {
         WHERE worker_id = ${me.id} AND finished_at IS NOT NULL AND sent_back = false
           AND finished_at > date_trunc('day', NOW() AT TIME ZONE 'Asia/Kolkata') AT TIME ZONE 'Asia/Kolkata'
         ORDER BY finished_at DESC`
-      return ok({ me: { name: me.name, role: me.role }, todo, inProgress, others, doneToday })
+      // Their own score for the last 7 days, so workers can see how they are doing
+      const targets = await getTargets(sql)
+      const week = (await stageTimings(sql, 7, targets)).filter(r => r.worker_id === me.id && r.finished_at && !r.sent_back)
+      const myKpi = { done: week.length, onTime: week.filter(r => r.on_time).length, targetHours: isWasher ? targets.wash_hours : targets.press_hours }
+      return ok({ me: { name: me.name, role: me.role }, todo, inProgress, others, doneToday, myKpi })
     }
 
     let body
